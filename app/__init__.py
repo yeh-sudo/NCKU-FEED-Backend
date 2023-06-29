@@ -5,7 +5,7 @@ import os
 load_dotenv()
 
 app = Flask(__name__)
-cliend = MongoClient(os.getenv("MONGO_URI"))
-nckufeed_db = cliend.nckufeed
+client = MongoClient(os.getenv("MONGO_URI"))
+nckufeed_db = client.nckufeed
 
 from app import index
