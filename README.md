@@ -25,15 +25,15 @@ Install docker. More information [here](https://docs.docker.com/get-docker/).
 
   1. Windows Powershell
      ```
-     docker run -v ${pwd}:/flask-app -p 5000:5000 USERNAME/flask-app
+     docker run -it -v ${pwd}:/flask-app -p 5000:5000 USERNAME/flask-app
      ```
   2. Windows cmd
      ```
-     docker run -v %cd%:/flask-app -p 5000:5000 USERNAME/flask-app
+     docker run -it -v %cd%:/flask-app -p 5000:5000 USERNAME/flask-app
      ```
   3. Linux and MacOS
      ```
-     docker run -v $(pwd):/flask-app -p 5000:5000 USERNAME/flask-app
+     docker run -it -v $(pwd):/flask-app -p 5000:5000 USERNAME/flask-app
      ```
 
 #### 2. Using venv
