@@ -16,7 +16,7 @@ class Restaurant(BaseModel):
     name: str
     comments_id: List[str]
     star: float
-    tags: str
+    tags: List[str]
     open_hour: str
     address: str
     phone_number: str
