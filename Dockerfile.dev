@@ -1,5 +1,5 @@
 # docker file for development
-FROM python:3.8-alpine
+FROM python:3.8-slim-bullseye
 
 RUN mkdir /flask-app
 WORKDIR /flask-app
