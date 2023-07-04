@@ -3,3 +3,4 @@ python-dotenv==1.0.0
 pymongo[srv]
 Flask-RESTful==0.3.10
 pydantic==1.10.9
+pandas==2.0.1
