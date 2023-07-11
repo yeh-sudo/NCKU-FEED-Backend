@@ -32,6 +32,10 @@ class User(BaseModel):
     restaurants_id: List[str] = Field(default_factory=list)
     preference: List[float] = Field(default_factory=list)
 
+class Recommend_List(BaseModel):
+    nick_name: str
+    recommendation: List[Restaurant]
+
 class Post(BaseModel):
     content: str
     picture: Optional[List[str]]
