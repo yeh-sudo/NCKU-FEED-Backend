@@ -12,7 +12,7 @@ Project description.
 
 ##### Prerequisites
 
-    Install docker. More information[here](https://docs.docker.com/get-docker/).
+Install docker. More information [here](https://docs.docker.com/get-docker/).
 
 ##### Using docker compose to build image and run
 
@@ -24,7 +24,7 @@ docker compose -f Docker-compose.dev.yaml up --build
 
 ##### Prerequisites
 
-    Install python 3.8. More information[here](https://www.python.org/downloads/).
+Install python 3.8. More information [here](https://www.python.org/downloads/).
 
 ##### Installation and Run
 
