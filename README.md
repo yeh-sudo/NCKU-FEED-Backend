@@ -26,7 +26,7 @@ docker compose -f Docker-compose.dev.yaml up --build
 
 Install python 3.8. More information [here](https://www.python.org/downloads/).
 
-Install Redis and run locally. More information [h]()ere.
+Install Redis and run locally. More information [here](https://redis.io/docs/getting-started/installation/).
 
 ##### Installation and Run
 
