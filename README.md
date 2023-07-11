@@ -14,7 +14,7 @@ Project description.
 
     Install docker. More information[here](https://docs.docker.com/get-docker/).
 
-##### Using docker compose to build and run
+##### Using docker compose to build image and run
 
 ```
 docker compose -f Docker-compose.dev.yaml up --build
