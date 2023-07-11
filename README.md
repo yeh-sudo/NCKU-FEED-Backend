@@ -12,35 +12,19 @@ Project description.
 
 ##### Prerequisites
 
-Install docker. More information [here](https://docs.docker.com/get-docker/).
+    Install docker. More information[here](https://docs.docker.com/get-docker/).
 
-##### Installation and Run
+##### Using docker compose to build and run
 
-* Step 1: Build the image
-
-  ```
-  docker build -f Dockerfile.dev -t USERNAME/flask-app .
-  ```
-* Step 2: Run the image in docker container
-
-  1. Windows Powershell
-     ```
-     docker run -it -v ${pwd}:/flask-app -p 5000:5000 USERNAME/flask-app
-     ```
-  2. Windows cmd
-     ```
-     docker run -it -v %cd%:/flask-app -p 5000:5000 USERNAME/flask-app
-     ```
-  3. Linux and MacOS
-     ```
-     docker run -it -v $(pwd):/flask-app -p 5000:5000 USERNAME/flask-app
-     ```
+```
+docker compose -f Docker-compose.dev.yaml up --build
+```
 
 #### 2. Using venv
 
 ##### Prerequisites
 
-Install python 3.8. More information [here](https://www.python.org/downloads/).
+    Install python 3.8. More information[here](https://www.python.org/downloads/).
 
 ##### Installation and Run
 
