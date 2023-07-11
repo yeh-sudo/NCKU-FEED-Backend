@@ -29,5 +29,5 @@ class User(BaseModel):
     profile_photo: str
     comments_id: List[str]
     post_id: List[str]
-    restaruants_id: List[str]
+    restaurants_id: List[str]
     preference: List[float]
