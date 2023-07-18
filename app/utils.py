@@ -1,3 +1,4 @@
+"""Provide Thread class to be inherited"""
 from threading import Thread
 import pandas as pd
 import numpy as np
@@ -5,7 +6,24 @@ from sklearn.preprocessing import MultiLabelBinarizer
 from app import redis_db, nckufeed_db
 from app.models import Restaurant, Recommend_List
 
-food_types = ["American Foods", "Taiwanese Foods", "Fast Foods", "Thai Foods", "Soup", "Pizza", "Desserts", "Street Foods", "Drinks", "Cafe", "BBQ", "Indian Foods", "Hong Kong Style Foods", "Vegetarian Diet", "Breakfast", "Korean Foods", "Italian Foods", "Seafood"]
+food_types = ["American Foods",
+              "Taiwanese Foods",
+              "Fast Foods",
+              "Thai Foods",
+              "Soup",
+              "Pizza",
+              "Desserts",
+              "Street Foods",
+              "Drinks", "Cafe",
+              "BBQ",
+              "Indian Foods",
+              "Hong Kong Style Foods",
+              "Vegetarian Diet",
+              "Breakfast",
+              "Korean Foods",
+              "Italian Foods",
+              "Seafood"
+            ]
 
 def create_user_hmap(nick_name: str, preferences: list):
     """Create hash map in redis for specific user's preference.
@@ -65,7 +83,9 @@ class RecommendComputeTask(Thread):
 
         # One hot encoding tags and compute similarity
         mlb = MultiLabelBinarizer()
-        tags_matrix = pd.DataFrame(mlb.fit_transform(tags), columns=mlb.classes_, index=tags.index).to_numpy(dtype=np.float32)
+        tags_matrix = pd.DataFrame(mlb.fit_transform(tags),
+                                   columns=mlb.classes_,
+                                   index=tags.index).to_numpy(dtype=np.float32)
         similarity = np.dot(tags_matrix, np.transpose(new_preferences_matrix)).tolist()
 
         # Insert similarity to dataframe and generate new recommend list
@@ -88,7 +108,7 @@ class RecommendComputeTask(Thread):
             recommendation.append(restaurant)
             if idx == 30:
                 break
-        
+
         recommend_list = Recommend_List(
             nick_name=self.__nick_name,
             recommendation=recommendation

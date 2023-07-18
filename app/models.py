@@ -1,5 +1,5 @@
-from pydantic import BaseModel, Field
 from typing import List, Optional
+from pydantic import BaseModel, Field
 
 class Rating(BaseModel):
     cleanliness: int = Field(default=0, ge=0)
@@ -7,7 +7,7 @@ class Rating(BaseModel):
     deliciousness: int = Field(default=0, ge=0)
     CPR: int = Field(default=0, ge=0)
     overall: int = Field(default=0, ge=0)
-    
+
 class Comment(BaseModel):
     rating: Rating
     content: str
@@ -24,6 +24,7 @@ class Restaurant(BaseModel):
     web: str = None
 
 class User(BaseModel):
+    uid: str
     nick_name: str
     self_intro: Optional[str]
     profile_photo: Optional[str]
