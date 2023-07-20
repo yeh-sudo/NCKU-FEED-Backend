@@ -1,7 +1,12 @@
+"""Provide data model for database."""
+
 from typing import List, Optional
 from pydantic import BaseModel, Field
 
 class Rating(BaseModel):
+    """Rating model.
+    """
+
     cleanliness: int = Field(default=0, ge=0)
     service: int = Field(default=0, ge=0)
     deliciousness: int = Field(default=0, ge=0)
@@ -9,10 +14,16 @@ class Rating(BaseModel):
     overall: int = Field(default=0, ge=0)
 
 class Comment(BaseModel):
+    """Comment model.
+    """
+
     rating: Rating
     content: str
 
 class Restaurant(BaseModel):
+    """Restaurant model.
+    """
+
     name: str
     comments_id: List[str] = Field(default_factory=list)
     star: float = Field(default=0, ge=0)
@@ -24,20 +35,29 @@ class Restaurant(BaseModel):
     web: str = None
 
 class User(BaseModel):
+    """User model.
+    """
+
     uid: str
     nick_name: str
+    email: str
     self_intro: Optional[str]
     profile_photo: Optional[str]
     comments_id: List[str] = Field(default_factory=list)
-    post_id: List[str] = Field(default_factory=list)# 若原本沒有，則預設為空的list
     restaurants_id: List[str] = Field(default_factory=list)
     preference: List[float] = Field(default_factory=list)
 
-class Recommend_List(BaseModel):
-    nick_name: str
+class RecommendList(BaseModel):
+    """Recommend list model.
+    """
+
+    uid: str
     recommendation: List[Restaurant]
 
 class Post(BaseModel):
+    """Post model.
+    """
+
     content: str
     picture: Optional[List[str]]
     restaurants_id: str
