@@ -29,11 +29,11 @@ class Restaurant(BaseModel):
     comments_id: List[str] = Field(default_factory=list)
     star: float = Field(default=0, ge=0)
     tags: List[str] = Field(default_factory=list)
-    open_hour: str = None
-    address: str = None
-    phone_number: str = None
-    service: str = None
-    web: str = None
+    open_hour: List[str] = Field(default_factory=list)
+    address: Optional[str] = None
+    phone_number: Optional[str] = None
+    service: List[str] = Field(default_factory=list)
+    website: Optional[str] = None
 
 class User(BaseModel):
     """User model.

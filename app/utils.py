@@ -162,3 +162,76 @@ def check_if_token_is_revoked(_, jwt_payload: dict):
     jti = jwt_payload["jti"]
     token_in_redis = redis_db.get(jti)
     return token_in_redis is not None
+
+
+# CRUD
+class DatabaseProcessor:
+    def __init__(self):
+        self.posts_collection = nckufeed_db["posts"]
+        self.restaurants_collection = nckufeed_db["restaurants"]
+        self.users_collection = nckufeed_db["users"]
+        self.comments_collection = nckufeed_db["comments"]
+
+    def insert_restaurant(self, restaurant_info):
+        """Insert one restaurant info
+
+        Args:
+            restaurant_info
+            e.g.  restaurant_data = {
+                    "name": "白吃",
+                    "comments_id": ["1", "2"],
+                    "star": 4.3,
+                    "tags": ["Taiwanese Foods", "Street Foods"],
+                    "open_hour": ["14:30-20:00", "00:00-04:00"],
+                    "address": '台南市北區',
+                    "phone_number": "0424242487",
+                    "service": ['內用', '外帶'],
+                    "website": "www.google.com"
+                   }
+
+        Return:
+            True if insert successfully.
+        """
+        try:
+            restaurant = Restaurant(**restaurant_info)
+            self.restaurants_collection.insert_one(restaurant.dict())
+            return True
+        except Exception as e:
+            print("Insert new restaurant failed!!")
+            print(e)
+            return False
+
+    def get_all_restaurants(self):
+        """Get all restaurant info.
+
+        Return:
+            False if some error happened, else all restaurant info.
+        """
+        try:
+            restaurants = self.restaurants_collection.find({})
+        except:
+            print("Get all restaurants error!")
+            return False
+        else:
+            return list(restaurants)
+
+    def get_restaurant_info(self, restaurant_name):
+        """Get one restaurant info
+
+        Args:
+            restaurant_name (str)
+
+        Return:
+            False if some error happened or restaurant not exist, else return specific restaurant info.
+        """
+        try:
+            restaurant = self.restaurants_collection.find_one({"name": restaurant_name})
+        except:
+            print("Get restaurant info error!")
+            return False
+        else:
+            if restaurant is None:
+                print("There is no such restaurant!")
+                return False
+            else:
+                return restaurant
