@@ -1,8 +1,8 @@
 """Provide data model for database."""
 
 from typing import List, Optional
-from pydantic import BaseModel, Field, PrivateAttr
 from datetime import datetime, timedelta, timezone
+from pydantic import BaseModel, Field
 
 class Rating(BaseModel):
     """Rating model.
