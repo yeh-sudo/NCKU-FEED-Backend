@@ -7,6 +7,7 @@ import pandas as pd
 import numpy as np
 from sklearn.preprocessing import MultiLabelBinarizer
 from flask_jwt_extended import get_jwt, create_access_token
+from pymongo.errors import OperationFailure
 from app import app, redis_db, nckufeed_db, jwt
 from app.models import Restaurant, RecommendList
 
@@ -108,10 +109,10 @@ class RecommendComputeTask(Thread):
                 comments_id=row["comments_id"],
                 star=row["star"],
                 tags=row["tags"],
-                open_hour=row["open_hour"],
+                open_hour=[row["open_hour"]],
                 address=row["address"],
                 phone_number=row["phone_number"],
-                service=row["service"],
+                service=[row["service"]],
                 web=row["web"]
             )
             recommendation.append(restaurant)
@@ -151,6 +152,7 @@ def refresh_expiring_jwts(response):
     except(RuntimeError, KeyError):
         return response
 
+
 @jwt.token_in_blocklist_loader
 def check_if_token_is_revoked(_, jwt_payload: dict):
     """Check if the token is valid.
@@ -166,6 +168,9 @@ def check_if_token_is_revoked(_, jwt_payload: dict):
 
 # CRUD
 class DatabaseProcessor:
+    """Provide functions to take some operation on database.
+    """
+
     def __init__(self):
         self.posts_collection = nckufeed_db["posts"]
         self.restaurants_collection = nckufeed_db["restaurants"]
@@ -192,13 +197,14 @@ class DatabaseProcessor:
         Return:
             True if insert successfully.
         """
+
         try:
             restaurant = Restaurant(**restaurant_info)
             self.restaurants_collection.insert_one(restaurant.dict())
             return True
-        except Exception as e:
+        except OperationFailure as error:
             print("Insert new restaurant failed!!")
-            print(e)
+            print(error)
             return False
 
     def get_all_restaurants(self):
@@ -209,7 +215,7 @@ class DatabaseProcessor:
         """
         try:
             restaurants = self.restaurants_collection.find({})
-        except:
+        except OperationFailure:
             print("Get all restaurants error!")
             return False
         else:
@@ -222,11 +228,13 @@ class DatabaseProcessor:
             restaurant_name (str)
 
         Return:
-            False if some error happened or restaurant not exist, else return specific restaurant info.
+            False if some error happened or restaurant not exist,
+            else return specific restaurant info.
         """
+
         try:
             restaurant = self.restaurants_collection.find_one({"name": restaurant_name})
-        except:
+        except OperationFailure:
             print("Get restaurant info error!")
             return False
         else:

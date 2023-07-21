@@ -113,7 +113,11 @@ class Logout(Resource):
         Return:
             Return successful message if logout successfully.
         """
+
         jti = get_jwt()["jti"]
+        uid = get_jwt()["uid"]
+        thread = RecommendComputeTask(uid)
+        thread.start()
         redis_db.set(jti, "", ex=timedelta(hours=1))
         return {"message": "Logout successfully."}, 200
 
