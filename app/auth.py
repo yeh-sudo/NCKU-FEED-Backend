@@ -111,6 +111,10 @@ class Auth(Resource):
 
         args = user_args.parse_args()
         uid = get_jwt()["uid"]
+        user_collection = nckufeed_db["users"]
+        user_collection.update_one({"uid": uid},
+                                   {"$pull": {"restaurants_id": args.restaurant_id}})
+        return {}, 200
 
 
 class Logout(Resource):
