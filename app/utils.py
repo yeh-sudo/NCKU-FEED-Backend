@@ -9,7 +9,7 @@ from sklearn.preprocessing import MultiLabelBinarizer
 from flask_jwt_extended import get_jwt, create_access_token
 from pymongo.errors import OperationFailure
 from app import app, redis_db, nckufeed_db, jwt
-from app.models import Restaurant, RecommendList
+from app.models import Restaurant, RecommendList, Comment
 
 food_types = ["American Foods",
               "Taiwanese Foods",
@@ -106,7 +106,6 @@ class RecommendComputeTask(Thread):
                 break
             restaurant = Restaurant(
                 name=row["name"],
-                comments_id=row["comments_id"],
                 star=row["star"],
                 tags=row["tags"],
                 open_hour=[row["open_hour"]],
@@ -243,3 +242,100 @@ class DatabaseProcessor:
                 return False
             else:
                 return restaurant
+
+    def insert_comment(self, json_input):
+        """Insert one restaurant info
+
+        Args:
+            json_input
+            e.g. comment_data = {
+                    "content": "這家餐廳真棒！",
+                    "rating": {
+                        "cleanliness": 9,
+                        "service": 8,
+                        "deliciousness": 9,
+                        "CPR": 7,
+                        "overall": 9
+                    },
+                    "uid": "",
+                    "target_id": ""
+                }
+
+            Return:
+                True if insert successfully.
+        """
+
+        try:
+            comment = Comment(**json_input)
+            self.comments_collection.insert_one(comment.dict())
+            return True
+        except OperationFailure as error:
+            print("Insert new restaurant failed!!")
+            print(error)
+            return False
+
+    def update_comment_content(self, json_input):
+        """Update one comment's content
+
+        Args:
+            json_input
+            e.g.  json_input = {
+                    "_id": "",
+                    "content": "I don't like it actually"
+                  }
+        Return:
+            False if some error happened or comment not exist,
+            else True
+        """
+        try:
+            comment = self.comments_collection.find_one_and_update({'_id': str(json_input['_id'])},
+                                                                   {'$set': {'content': json_input['content']}})
+        except OperationFailure:
+            print("update_comment_content operation failed!")
+            return False
+        else:
+            if comment is None:
+                print("There is no such comment!")
+                return False
+            else:
+                return True
+
+    def get_comment_from_restaurant_or_post(self, target_id):
+        """Get all comments from a restaurant or post
+
+            Args:
+                target_id (restaurant's _id or post's _id)
+
+            Return:
+                False if some error happened,
+                else return a comment list.
+        """
+        try:
+            comments = self.comments_collection.find({"target_id": target_id})
+        except OperationFailure:
+            print("get_comment_from_restaurant_or_post operation failed!")
+            return False
+        else:
+            if comments is None:
+                print("There is no such comment!")
+                return False
+            else:
+                return list(comments)
+
+    def delete_comment(self, comment_id):
+        """Delete one comment
+
+        Args:
+            comment_id (_id)
+
+        Return:
+            False if some error happened,
+            else True
+        """
+        try:
+            self.comments_collection.delete_one({'_id': comment_id})
+        except OperationFailure:
+            print('delete_comment operation failed!')
+            return False
+        else:
+            return True

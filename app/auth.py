@@ -84,6 +84,9 @@ class Auth(Resource):
         claims = get_jwt()
         uid = claims["uid"]
         user_collection = nckufeed_db["users"]
+        if args.name is not None:
+            user_collection.update_one({"uid": uid},
+                                       {"$set": {"nick_name": args.name}})
         if args.profile_photo is not None:
             user_collection.update_one({"uid": uid},
                                        {"$set": {"profile_photo": args.profile_photo}})

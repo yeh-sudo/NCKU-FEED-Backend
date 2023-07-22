@@ -18,6 +18,8 @@ class Comment(BaseModel):
     """Comment model.
     """
 
+    uid: str
+    target_id: str
     rating: Rating
     content: str
 
@@ -26,7 +28,6 @@ class Restaurant(BaseModel):
     """
 
     name: str
-    comments_id: List[str] = Field(default_factory=list)
     star: float = Field(default=0, ge=0)
     tags: List[str] = Field(default_factory=list)
     open_hour: List[str] = Field(default_factory=list)
