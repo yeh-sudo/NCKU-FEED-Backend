@@ -101,6 +101,17 @@ class Auth(Resource):
             create_user_hmap(uid, args.preference)
         return {}, 200
 
+    @jwt_required()
+    def delete(self):
+        """DELETE method for user to delete restaurant in database.
+
+        Return:
+            Status code 200.
+        """
+
+        args = user_args.parse_args()
+        uid = get_jwt()["uid"]
+
 
 class Logout(Resource):
     """The class provides api for logout from web application.
@@ -122,5 +133,5 @@ class Logout(Resource):
         return {"message": "Logout successfully."}, 200
 
 
-api.add_resource(Auth, "/auth")
+api.add_resource(Auth, "/user")
 api.add_resource(Logout, "/logout")
