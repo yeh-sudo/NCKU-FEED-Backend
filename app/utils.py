@@ -7,8 +7,9 @@ import pandas as pd
 import numpy as np
 from sklearn.preprocessing import MultiLabelBinarizer
 from flask_jwt_extended import get_jwt, create_access_token
+from pymongo.errors import OperationFailure
 from app import app, redis_db, nckufeed_db, jwt
-from app.models import Restaurant, RecommendList
+from app.models import Restaurant, RecommendList, Comment
 
 food_types = ["American Foods",
               "Taiwanese Foods",
@@ -105,13 +106,12 @@ class RecommendComputeTask(Thread):
                 break
             restaurant = Restaurant(
                 name=row["name"],
-                comments_id=row["comments_id"],
                 star=row["star"],
                 tags=row["tags"],
-                open_hour=row["open_hour"],
+                open_hour=[row["open_hour"]],
                 address=row["address"],
                 phone_number=row["phone_number"],
-                service=row["service"],
+                service=[row["service"]],
                 web=row["web"]
             )
             recommendation.append(restaurant)
@@ -151,6 +151,7 @@ def refresh_expiring_jwts(response):
     except(RuntimeError, KeyError):
         return response
 
+
 @jwt.token_in_blocklist_loader
 def check_if_token_is_revoked(_, jwt_payload: dict):
     """Check if the token is valid.
@@ -162,3 +163,179 @@ def check_if_token_is_revoked(_, jwt_payload: dict):
     jti = jwt_payload["jti"]
     token_in_redis = redis_db.get(jti)
     return token_in_redis is not None
+
+
+# CRUD
+class DatabaseProcessor:
+    """Provide functions to take some operation on database.
+    """
+
+    def __init__(self):
+        self.posts_collection = nckufeed_db["posts"]
+        self.restaurants_collection = nckufeed_db["restaurants"]
+        self.users_collection = nckufeed_db["users"]
+        self.comments_collection = nckufeed_db["comments"]
+
+    def insert_restaurant(self, restaurant_info):
+        """Insert one restaurant info
+
+        Args:
+            restaurant_info
+            e.g.  restaurant_data = {
+                    "name": "白吃",
+                    "comments_id": ["1", "2"],
+                    "star": 4.3,
+                    "tags": ["Taiwanese Foods", "Street Foods"],
+                    "open_hour": ["14:30-20:00", "00:00-04:00"],
+                    "address": '台南市北區',
+                    "phone_number": "0424242487",
+                    "service": ['內用', '外帶'],
+                    "website": "www.google.com"
+                   }
+
+        Return:
+            True if insert successfully.
+        """
+
+        try:
+            restaurant = Restaurant(**restaurant_info)
+            self.restaurants_collection.insert_one(restaurant.dict())
+            return True
+        except OperationFailure as error:
+            print("Insert new restaurant failed!!")
+            print(error)
+            return False
+
+    def get_all_restaurants(self):
+        """Get all restaurant info.
+
+        Return:
+            False if some error happened, else all restaurant info.
+        """
+        try:
+            restaurants = self.restaurants_collection.find({})
+        except OperationFailure:
+            print("Get all restaurants error!")
+            return False
+        else:
+            return list(restaurants)
+
+    def get_restaurant_info(self, restaurant_name):
+        """Get one restaurant info
+
+        Args:
+            restaurant_name (str)
+
+        Return:
+            False if some error happened or restaurant not exist,
+            else return specific restaurant info.
+        """
+
+        try:
+            restaurant = self.restaurants_collection.find_one({"name": restaurant_name})
+        except OperationFailure:
+            print("Get restaurant info error!")
+            return False
+        else:
+            if restaurant is None:
+                print("There is no such restaurant!")
+                return False
+            else:
+                return restaurant
+
+    def insert_comment(self, json_input):
+        """Insert one restaurant info
+
+        Args:
+            json_input
+            e.g. comment_data = {
+                    "content": "這家餐廳真棒！",
+                    "rating": {
+                        "cleanliness": 9,
+                        "service": 8,
+                        "deliciousness": 9,
+                        "CPR": 7,
+                        "overall": 9
+                    },
+                    "uid": "",
+                    "target_id": ""
+                }
+
+            Return:
+                True if insert successfully.
+        """
+
+        try:
+            comment = Comment(**json_input)
+            self.comments_collection.insert_one(comment.dict())
+            return True
+        except OperationFailure as error:
+            print("Insert new restaurant failed!!")
+            print(error)
+            return False
+
+    def update_comment_content(self, json_input):
+        """Update one comment's content
+
+        Args:
+            json_input
+            e.g.  json_input = {
+                    "_id": "",
+                    "content": "I don't like it actually"
+                  }
+        Return:
+            False if some error happened or comment not exist,
+            else True
+        """
+        try:
+            comment = self.comments_collection.find_one_and_update({'_id': str(json_input['_id'])},
+                                                                   {'$set': {'content': json_input['content']}})
+        except OperationFailure:
+            print("update_comment_content operation failed!")
+            return False
+        else:
+            if comment is None:
+                print("There is no such comment!")
+                return False
+            else:
+                return True
+
+    def get_comment_from_restaurant_or_post(self, target_id):
+        """Get all comments from a restaurant or post
+
+            Args:
+                target_id (restaurant's _id or post's _id)
+
+            Return:
+                False if some error happened,
+                else return a comment list.
+        """
+        try:
+            comments = self.comments_collection.find({"target_id": target_id})
+        except OperationFailure:
+            print("get_comment_from_restaurant_or_post operation failed!")
+            return False
+        else:
+            if comments is None:
+                print("There is no such comment!")
+                return False
+            else:
+                return list(comments)
+
+    def delete_comment(self, comment_id):
+        """Delete one comment
+
+        Args:
+            comment_id (_id)
+
+        Return:
+            False if some error happened,
+            else True
+        """
+        try:
+            self.comments_collection.delete_one({'_id': comment_id})
+        except OperationFailure:
+            print('delete_comment operation failed!')
+            return False
+        else:
+            return True

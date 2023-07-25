@@ -84,6 +84,9 @@ class Auth(Resource):
         claims = get_jwt()
         uid = claims["uid"]
         user_collection = nckufeed_db["users"]
+        if args.name is not None:
+            user_collection.update_one({"uid": uid},
+                                       {"$set": {"nick_name": args.name}})
         if args.profile_photo is not None:
             user_collection.update_one({"uid": uid},
                                        {"$set": {"profile_photo": args.profile_photo}})
@@ -101,6 +104,21 @@ class Auth(Resource):
             create_user_hmap(uid, args.preference)
         return {}, 200
 
+    @jwt_required()
+    def delete(self):
+        """DELETE method for user to delete restaurant in database.
+
+        Return:
+            Status code 200.
+        """
+
+        args = user_args.parse_args()
+        uid = get_jwt()["uid"]
+        user_collection = nckufeed_db["users"]
+        user_collection.update_one({"uid": uid},
+                                   {"$pull": {"restaurants_id": args.restaurant_id}})
+        return {}, 200
+
 
 class Logout(Resource):
     """The class provides api for logout from web application.
@@ -113,10 +131,14 @@ class Logout(Resource):
         Return:
             Return successful message if logout successfully.
         """
+
         jti = get_jwt()["jti"]
+        uid = get_jwt()["uid"]
+        thread = RecommendComputeTask(uid)
+        thread.start()
         redis_db.set(jti, "", ex=timedelta(hours=1))
         return {"message": "Logout successfully."}, 200
 
 
-api.add_resource(Auth, "/auth")
+api.add_resource(Auth, "/user")
 api.add_resource(Logout, "/logout")

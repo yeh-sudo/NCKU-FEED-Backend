@@ -1,6 +1,7 @@
 """Provide data model for database."""
 
 from typing import List, Optional
+from datetime import datetime, timedelta, timezone
 from pydantic import BaseModel, Field
 
 class Rating(BaseModel):
@@ -17,6 +18,8 @@ class Comment(BaseModel):
     """Comment model.
     """
 
+    uid: str
+    target_id: str
     rating: Rating
     content: str
 
@@ -25,14 +28,13 @@ class Restaurant(BaseModel):
     """
 
     name: str
-    comments_id: List[str] = Field(default_factory=list)
     star: float = Field(default=0, ge=0)
     tags: List[str] = Field(default_factory=list)
-    open_hour: str = None
-    address: str = None
-    phone_number: str = None
-    service: str = None
-    web: str = None
+    open_hour: List[str] = Field(default_factory=list)
+    address: Optional[str] = None
+    phone_number: Optional[str] = None
+    service: List[str] = Field(default_factory=list)
+    website: Optional[str] = None
 
 class User(BaseModel):
     """User model.
@@ -58,8 +60,9 @@ class Post(BaseModel):
     """Post model.
     """
 
-    content: str
-    picture: Optional[List[str]]
+    title: str
+    content: str # includes picture url
     restaurants_id: str
     like: int = Field(default=0, ge=0)
-    comment_id: List[str] = Field(default_factory=list)
+    comments_id: List[str] = Field(default_factory=list)
+    release_time: str = datetime.now(timezone(timedelta(hours=+8))).strftime("%Y-%m-%d, %H:%M:%S")
