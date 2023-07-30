@@ -21,6 +21,6 @@ class Recommender(Resource):
         uid = get_jwt()["uid"]
         recommend_list_collection = nckufeed_db["recommend_list"]
         recommendation = RecommendList(**recommend_list_collection.find_one({"uid": uid}))
-        return recommendation.dict(), 200
+        return recommendation.dict(), 200, {"Access-Control-Allow-Origin": "*"}
 
 api.add_resource(Recommender, "/recommend")
