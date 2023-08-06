@@ -60,6 +60,7 @@ class Post(BaseModel):
     """Post model.
     """
 
+    uid: str
     title: str
     content: str # includes picture url
     restaurants_id: str

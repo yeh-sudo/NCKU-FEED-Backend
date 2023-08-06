@@ -28,9 +28,7 @@ class Comments(Resource):
             List of comments and status code 200.
         """
 
-        parser = reqparse.RequestParser()
-        parser.add_argument("uid", type=str, location="args")
-        args = parser.parse_args()
+        args = comments_args.parse_args()
         result = self.database_processor.get_comment_from_restaurant_or_post(args.target_id)
         if not result:
             return {}, 500, {"Access-Control-Allow-Origin": "*"}

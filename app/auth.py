@@ -43,7 +43,8 @@ class Auth(Resource):
         }
         access_token = create_access_token(args.uid, additional_claims=additional_claims)
         # TODO: add additional info if want
-        return {"access_token": access_token}, 200, {"Access-Control-Allow-Origin": "*"}
+        return {"access_token": access_token}, 200, {"Access-Control-Allow-Origin": "*",
+                                                    "Access-Control-Allow-Methods": "*"}
 
     def post(self):
         """POST method for authentication api.
@@ -72,7 +73,8 @@ class Auth(Resource):
         }
         access_token = create_access_token(args.uid, additional_claims=additional_claims)
         # TODO: add additional info if want
-        return {"access_token": access_token}, 201, {"Access-Control-Allow-Origin": "*"}
+        return {"access_token": access_token}, 201, {"Access-Control-Allow-Origin": "*",
+                                                    "Access-Control-Allow-Methods": "*"}
 
     @jwt_required()
     def put(self):
@@ -104,7 +106,8 @@ class Auth(Resource):
             thread.start()
             thread.join()
             create_user_hmap(uid, args.preference)
-        return {}, 200, {"Access-Control-Allow-Origin": "*"}
+        return {}, 200, {"Access-Control-Allow-Origin": "*",
+                        "Access-Control-Allow-Methods": "*"}
 
     @jwt_required()
     def delete(self):
@@ -119,7 +122,8 @@ class Auth(Resource):
         user_collection = nckufeed_db["users"]
         user_collection.update_one({"uid": uid},
                                    {"$pull": {"restaurants_id": args.restaurant_id}})
-        return {}, 200, {"Access-Control-Allow-Origin": "*"}
+        return {}, 200, {"Access-Control-Allow-Origin": "*",
+                        "Access-Control-Allow-Methods": "*"}
 
 
 class Logout(Resource):
@@ -139,7 +143,8 @@ class Logout(Resource):
         thread = RecommendComputeTask(uid)
         thread.start()
         redis_db.set(jti, "", ex=timedelta(hours=1))
-        return {"message": "Logout successfully."}, 200, {"Access-Control-Allow-Origin": "*"}
+        return {"message": "Logout successfully."}, 200, {"Access-Control-Allow-Origin": "*",
+                                                            "Access-Control-Allow-Methods": "*"}
 
 
 api.add_resource(Auth, "/user")

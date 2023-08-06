@@ -9,7 +9,7 @@ from sklearn.preprocessing import MultiLabelBinarizer
 from flask_jwt_extended import get_jwt, create_access_token
 from pymongo.errors import OperationFailure
 from app import app, redis_db, nckufeed_db, jwt
-from app.models import Restaurant, RecommendList, Comment
+from app.models import Restaurant, RecommendList, Comment, Post
 
 food_types = ["American Foods",
               "Taiwanese Foods",
@@ -339,3 +339,120 @@ class DatabaseProcessor:
             return False
         else:
             return True
+
+    def insert_post(self, json_input):
+        """Insert one post
+        Args:
+            json_input
+            e.g. post_data = {
+                    "title": "這家是舒服的",
+                    "content": "我給滿分",
+                    "restaurants_id": "123"
+                }
+
+                Return:
+                    True if insert successfully.
+        """
+
+        try:
+            post = Post(**json_input)
+            self.posts_collection.insert_one(post.dict())
+            return True
+        except OperationFailure as error:
+            print("Insert new post failed!!")
+            print(error)
+            return False
+
+    def get_post(self, post_id):
+        """Get post information
+
+            Args:
+                post_id (post's _id)
+
+            Return:
+                False if some error happened,
+                else return a post.
+        """
+        try:
+            post = self.posts_collection.find_one({"_id": post_id})
+        except OperationFailure:
+            print("get_post operation failed!")
+            return False
+        else:
+            if post is None:
+                print("There is no such post!")
+                return False
+            else:
+                return post
+
+    def delete_post(self, post_id):
+        """Delete one post
+
+        Args:
+            post_id (_id)
+
+        Return:
+            False if some error happened,
+            else True
+        """
+        try:
+            self.posts_collection.delete_one({'_id': post_id})
+        except OperationFailure:
+            print('delete_post operation failed!')
+            return False
+        else:
+            return True
+
+    def update_post_content(self, json_input):
+        """Update one post's content
+
+        Args:
+            json_input
+                e.g.  json_input = {
+                        "_id": "",
+                        "content": "I don't like it actually"
+                      }
+                      
+        Return:
+            False if some error happened or post not exist,
+            else True
+        """
+        try:
+            post = self.posts_collection.find_one_and_update({'_id': str(json_input['_id'])},
+                                                                   {'$set': {'content': json_input['content']}})
+        except OperationFailure:
+            print("update_post_content operation failed!")
+            return False
+        else:
+            if post is None:
+                print("There is no such post!")
+                return False
+            else:
+                return True
+
+    def update_post_title(self, json_input):
+        """Update one post's title
+
+        Args:
+            json_input
+                e.g.  json_input = {
+                        "_id": "",
+                        "title": "Good enough"
+                      }
+
+        Return:
+            False if some error happened or post not exist,
+            else True
+        """
+        try:
+            post = self.posts_collection.find_one_and_update({'_id': str(json_input['_id'])},
+                                                                   {'$set': {'title': json_input['title']}})
+        except OperationFailure:
+            print("update_post_title operation failed!")
+            return False
+        else:
+            if post is None:
+                print("There is no such post!")
+                return False
+            else:
+                return True
