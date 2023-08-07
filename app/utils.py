@@ -10,6 +10,7 @@ from flask_jwt_extended import get_jwt, create_access_token
 from pymongo.errors import OperationFailure
 from app import app, redis_db, nckufeed_db, jwt
 from app.models import Restaurant, RecommendList, Comment, Post
+from bson import ObjectId
 
 food_types = ["American Foods",
               "Taiwanese Foods",
@@ -213,7 +214,7 @@ class DatabaseProcessor:
             False if some error happened, else all restaurant info.
         """
         try:
-            restaurants = self.restaurants_collection.find({})
+            restaurants = self.restaurants_collection.find({}, {"_id":0})
         except OperationFailure:
             print("Get all restaurants error!")
             return False
@@ -244,7 +245,7 @@ class DatabaseProcessor:
                 return restaurant
 
     def insert_comment(self, json_input):
-        """Insert one restaurant info
+        """Insert one comment info
 
         Args:
             json_input
@@ -288,7 +289,7 @@ class DatabaseProcessor:
             else True
         """
         try:
-            comment = self.comments_collection.find_one_and_update({'_id': str(json_input['_id'])},
+            comment = self.comments_collection.find_one_and_update({'_id': ObjectId(json_input['_id'])},
                                                                    {'$set': {'content': json_input['content']}})
         except OperationFailure:
             print("update_comment_content operation failed!")
@@ -333,23 +334,28 @@ class DatabaseProcessor:
             else True
         """
         try:
-            self.comments_collection.delete_one({'_id': comment_id})
+            comment = self.comments_collection.find_one_and_delete({'_id': ObjectId(comment_id)})
         except OperationFailure:
             print('delete_comment operation failed!')
             return False
         else:
-            return True
+            if comment is None:
+                print("There is no such comment!")
+                return False
+            else:
+                return True
 
     def insert_post(self, json_input):
         """Insert one post
         Args:
             json_input
             e.g. post_data = {
+                    "uid": "D1MHod9o0ZOEMGCiAhuPQBwEr2a2"
                     "title": "這家是舒服的",
                     "content": "我給滿分",
                     "restaurants_id": "123"
                 }
-
+                "like", "comments_id", "release_time" can be null
                 Return:
                     True if insert successfully.
         """
@@ -374,7 +380,7 @@ class DatabaseProcessor:
                 else return a post.
         """
         try:
-            post = self.posts_collection.find_one({"_id": post_id})
+            post = self.posts_collection.find_one({"_id": ObjectId(post_id)})
         except OperationFailure:
             print("get_post operation failed!")
             return False
@@ -383,6 +389,7 @@ class DatabaseProcessor:
                 print("There is no such post!")
                 return False
             else:
+                post['_id'] = str(post['_id'])
                 return post
 
     def delete_post(self, post_id):
@@ -390,18 +397,26 @@ class DatabaseProcessor:
 
         Args:
             post_id (_id)
+            e.g.:
+            {
+                "id": "64d10a7279e8302c9c3a050a"
+            }
 
         Return:
             False if some error happened,
             else True
         """
         try:
-            self.posts_collection.delete_one({'_id': post_id})
+            post = self.posts_collection.find_one_and_delete({'_id': ObjectId(post_id)})
         except OperationFailure:
             print('delete_post operation failed!')
             return False
         else:
-            return True
+            if post is None:
+                print("There is no such post!")
+                return False
+            else:
+                return True
 
     def update_post_content(self, json_input):
         """Update one post's content
@@ -418,7 +433,7 @@ class DatabaseProcessor:
             else True
         """
         try:
-            post = self.posts_collection.find_one_and_update({'_id': str(json_input['_id'])},
+            post = self.posts_collection.find_one_and_update({'_id': ObjectId(json_input['_id'])},
                                                                    {'$set': {'content': json_input['content']}})
         except OperationFailure:
             print("update_post_content operation failed!")
@@ -445,7 +460,7 @@ class DatabaseProcessor:
             else True
         """
         try:
-            post = self.posts_collection.find_one_and_update({'_id': str(json_input['_id'])},
+            post = self.posts_collection.find_one_and_update({'_id': ObjectId(json_input['_id'])},
                                                                    {'$set': {'title': json_input['title']}})
         except OperationFailure:
             print("update_post_title operation failed!")
