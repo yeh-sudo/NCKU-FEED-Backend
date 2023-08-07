@@ -41,10 +41,16 @@ class Auth(Resource):
             "nick_name": user.nick_name,
             "email": user.email
         }
+        user_info = {
+            "uid": user.uid,
+            "nick_name": user.nick_name,
+            "email": user.email,
+            "self_intro": user.self_intro,
+            "profile_photo": user.profile_photo
+        }
         access_token = create_access_token(args.uid, additional_claims=additional_claims)
-        # TODO: add additional info if want
-        return {"access_token": access_token}, 200, {"Access-Control-Allow-Origin": "*",
-                                                    "Access-Control-Allow-Methods": "*"}
+        return {"access_token": access_token, "user_info": user_info}, 200, {"Access-Control-Allow-Origin": "*",
+                                                                             "Access-Control-Allow-Methods": "*"}
 
     def post(self):
         """POST method for authentication api.
