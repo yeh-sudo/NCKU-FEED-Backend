@@ -77,10 +77,16 @@ class Auth(Resource):
             "nick_name": args.name,
             "email": args.email
         }
+        user_info = {
+            "uid": new_user.uid,
+            "nick_name": new_user.nick_name,
+            "email": new_user.email,
+            "self_intro": new_user.self_intro,
+            "profile_photo": new_user.profile_photo
+        }
         access_token = create_access_token(args.uid, additional_claims=additional_claims)
-        # TODO: add additional info if want
-        return {"access_token": access_token}, 201, {"Access-Control-Allow-Origin": "*",
-                                                    "Access-Control-Allow-Methods": "*"}
+        return {"access_token": access_token, "user_info": user_info}, 201, {"Access-Control-Allow-Origin": "*",
+                                                                            "Access-Control-Allow-Methods": "*"}
 
     @jwt_required()
     def put(self):
@@ -112,8 +118,9 @@ class Auth(Resource):
             thread.start()
             thread.join()
             create_user_hmap(uid, args.preference)
-        return {}, 200, {"Access-Control-Allow-Origin": "*",
-                        "Access-Control-Allow-Methods": "*"}
+        user = User(**user_collection.find_one({"uid": uid}))
+        return user.dict(), 200, {"Access-Control-Allow-Origin": "*",
+                                "Access-Control-Allow-Methods": "*"}
 
     @jwt_required()
     def delete(self):
@@ -128,8 +135,9 @@ class Auth(Resource):
         user_collection = nckufeed_db["users"]
         user_collection.update_one({"uid": uid},
                                    {"$pull": {"restaurants_id": args.restaurant_id}})
-        return {}, 200, {"Access-Control-Allow-Origin": "*",
-                        "Access-Control-Allow-Methods": "*"}
+        user = User(**user_collection.find_one({"uid": uid}))
+        return user.dict(), 200, {"Access-Control-Allow-Origin": "*",
+                                "Access-Control-Allow-Methods": "*"}
 
 
 class Logout(Resource):

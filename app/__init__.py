@@ -1,3 +1,5 @@
+"""Init of flask app and api."""
+
 from datetime import timedelta
 import os
 from flask import Flask
