@@ -16,6 +16,7 @@ restaurants_args.add_argument("address", type=str)
 restaurants_args.add_argument("phone_number", type=str)
 restaurants_args.add_argument("service", type=str, action="append")
 restaurants_args.add_argument("website", type=str)
+restaurants_args.add_argument("id", type=str)
 
 
 
@@ -79,19 +80,19 @@ class Restaurants(Resource):
             }
             if not self.database_processor.update_restaurant_service(json_input):
                 return {"message": "update restaurant's service error."}, 500, {"Access-Control-Allow-Origin": "*"}
-        if args.web is not None:
+        if args.website is not None:
             json_input = {
                 "_id": args.id,
-                "web": args.web,
+                "website": args.website,
             }
-            if not self.database_processor.update_restaurant_web(json_input):
-                return {"message": "update restaurant's web error."}, 500, {"Access-Control-Allow-Origin": "*"}
+            if not self.database_processor.update_restaurant_website(json_input):
+                return {"message": "update restaurant's website error."}, 500, {"Access-Control-Allow-Origin": "*"}
 
     """test1 passed"""
     @jwt_required()
     def delete(self):
         args = restaurants_args.parse_args()
-        if self.database_processor.delete_post(args.id):
+        if self.database_processor.delete_restaurant(args.id):
             return {}, 200, {"Access-Control-Allow-Origin": "*"}
         else:
             return {}, 500, {"Access-Control-Allow-Origin": "*"}
