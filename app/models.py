@@ -45,7 +45,6 @@ class User(BaseModel):
     email: str
     self_intro: Optional[str]
     profile_photo: Optional[str]
-    comments_id: List[str] = Field(default_factory=list)
     restaurants_id: List[str] = Field(default_factory=list)
     preference: List[float] = Field(default_factory=list)
 
