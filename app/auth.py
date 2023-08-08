@@ -82,7 +82,8 @@ class Auth(Resource):
             "nick_name": new_user.nick_name,
             "email": new_user.email,
             "self_intro": new_user.self_intro,
-            "profile_photo": new_user.profile_photo
+            "profile_photo": new_user.profile_photo,
+            "restaurant_id": new_user.restaurants_id
         }
         access_token = create_access_token(args.uid, additional_claims=additional_claims)
         return {"access_token": access_token, "user_info": user_info}, 201, {"Access-Control-Allow-Origin": "*",
