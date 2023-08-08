@@ -49,9 +49,17 @@ class Auth(Resource):
             "profile_photo": user.profile_photo,
             "restaurant_id": user.restaurants_id
         }
-        access_token = create_access_token(args.uid, additional_claims=additional_claims)
-        return {"access_token": access_token, "user_info": user_info}, 200, {"Access-Control-Allow-Origin": "*",
-                                                                             "Access-Control-Allow-Methods": "*"}
+        access_token = create_access_token(
+            args.uid,
+            additional_claims=additional_claims
+        )
+        return {
+            "access_token": access_token,
+            "user_info": user_info
+        }, 200, {
+            "Access-Control-Allow-Origin": "*",
+            "Access-Control-Allow-Methods": "*"
+        }
 
     def post(self):
         """POST method for authentication api.
@@ -86,9 +94,17 @@ class Auth(Resource):
             "profile_photo": new_user.profile_photo,
             "restaurant_id": new_user.restaurants_id
         }
-        access_token = create_access_token(args.uid, additional_claims=additional_claims)
-        return {"access_token": access_token, "user_info": user_info}, 201, {"Access-Control-Allow-Origin": "*",
-                                                                            "Access-Control-Allow-Methods": "*"}
+        access_token = create_access_token(
+            args.uid,
+            additional_claims=additional_claims
+        )
+        return {
+            "access_token": access_token,
+            "user_info": user_info
+        }, 201, {
+            "Access-Control-Allow-Origin": "*",
+            "Access-Control-Allow-Methods": "*"
+        }
 
     @jwt_required()
     def put(self):
@@ -121,8 +137,10 @@ class Auth(Resource):
             thread.join()
             create_user_hmap(uid, args.preference)
         user = User(**user_collection.find_one({"uid": uid}))
-        return user.dict(), 200, {"Access-Control-Allow-Origin": "*",
-                                "Access-Control-Allow-Methods": "*"}
+        return user.dict(), 200, {
+            "Access-Control-Allow-Origin": "*",
+            "Access-Control-Allow-Methods": "*"
+        }
 
     @jwt_required()
     def delete(self):
@@ -138,8 +156,10 @@ class Auth(Resource):
         user_collection.update_one({"uid": uid},
                                    {"$pull": {"restaurants_id": args.restaurant_id}})
         user = User(**user_collection.find_one({"uid": uid}))
-        return user.dict(), 200, {"Access-Control-Allow-Origin": "*",
-                                "Access-Control-Allow-Methods": "*"}
+        return user.dict(), 200, {
+            "Access-Control-Allow-Origin": "*",
+            "Access-Control-Allow-Methods": "*"
+        }
 
 
 class Logout(Resource):
