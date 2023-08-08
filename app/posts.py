@@ -21,6 +21,7 @@ class Posts(Resource):
 
     database_processor = DatabaseProcessor()
 
+    """test1 passed"""
     @jwt_required()
     def get(self):
         parser = reqparse.RequestParser()
@@ -32,6 +33,7 @@ class Posts(Resource):
         else:
             return post, 200, {"Access-Control-Allow-Origin": "*"}
 
+    """test1 passed"""
     @jwt_required()
     def post(self):
         uid = get_jwt()["uid"]
@@ -42,14 +44,14 @@ class Posts(Resource):
             content=args.content,
             restaurants_id=args.restaurants_id,
             like=0,
-            comments_id=[],
-            release_time=args.release_time
+            comments_id=[]
         )
         if self.database_processor.insert_post(new_post.dict()):
             return {}, 201, {"Access-Control-Allow-Origin": "*"}
         else:
             return {}, 500, {"Access-Control-Allow-Origin": "*"}
 
+    """test1 passed"""
     @jwt_required()
     def put(self):
         args = posts_args.parse_args()
@@ -68,6 +70,7 @@ class Posts(Resource):
             if not self.database_processor.update_post_title(json_input):
                 return {"message": "update post's title error."}, 500, {"Access-Control-Allow-Origin": "*"}
 
+    """test1 passed"""
     @jwt_required()
     def delete(self):
         args = posts_args.parse_args()
