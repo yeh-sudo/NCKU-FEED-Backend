@@ -177,6 +177,7 @@ class DatabaseProcessor:
         self.users_collection = nckufeed_db["users"]
         self.comments_collection = nckufeed_db["comments"]
 
+    """used"""
     def insert_restaurant(self, restaurant_info):
         """Insert one restaurant info
 
@@ -184,7 +185,6 @@ class DatabaseProcessor:
             restaurant_info
             e.g.  restaurant_data = {
                     "name": "白吃",
-                    "comments_id": ["1", "2"],
                     "star": 4.3,
                     "tags": ["Taiwanese Foods", "Street Foods"],
                     "open_hour": ["14:30-20:00", "00:00-04:00"],
@@ -221,11 +221,12 @@ class DatabaseProcessor:
         else:
             return list(restaurants)
 
-    def get_restaurant_info(self, restaurant_name):
+    """used"""
+    def get_restaurant_info(self, restaurant_id):
         """Get one restaurant info
 
         Args:
-            restaurant_name (str)
+            restaurant_id (str)
 
         Return:
             False if some error happened or restaurant not exist,
@@ -233,7 +234,7 @@ class DatabaseProcessor:
         """
 
         try:
-            restaurant = self.restaurants_collection.find_one({"name": restaurant_name})
+            restaurant = self.restaurants_collection.find_one({"_id": ObjectId(restaurant_id)})
         except OperationFailure:
             print("Get restaurant info error!")
             return False
@@ -242,8 +243,10 @@ class DatabaseProcessor:
                 print("There is no such restaurant!")
                 return False
             else:
+                restaurant['_id'] = str(restaurant['_id'])
                 return restaurant
 
+    """used"""
     def insert_comment(self, json_input):
         """Insert one comment info
 
@@ -275,6 +278,7 @@ class DatabaseProcessor:
             print(error)
             return False
 
+    """used"""
     def update_comment_content(self, json_input):
         """Update one comment's content
 
@@ -301,6 +305,7 @@ class DatabaseProcessor:
             else:
                 return True
 
+    """used"""
     def get_comment_from_restaurant_or_post(self, target_id):
         """Get all comments from a restaurant or post
 
@@ -323,6 +328,7 @@ class DatabaseProcessor:
             else:
                 return list(comments)
 
+    """used"""
     def delete_comment(self, comment_id):
         """Delete one comment
 
@@ -345,6 +351,7 @@ class DatabaseProcessor:
             else:
                 return True
 
+    """used"""
     def insert_post(self, json_input):
         """Insert one post
         Args:
@@ -369,6 +376,7 @@ class DatabaseProcessor:
             print(error)
             return False
 
+    """used"""
     def get_post(self, post_id):
         """Get post information
 
@@ -392,6 +400,7 @@ class DatabaseProcessor:
                 post['_id'] = str(post['_id'])
                 return post
 
+    """used"""
     def delete_post(self, post_id):
         """Delete one post
 
@@ -418,6 +427,7 @@ class DatabaseProcessor:
             else:
                 return True
 
+    """used"""
     def update_post_content(self, json_input):
         """Update one post's content
 
@@ -445,6 +455,7 @@ class DatabaseProcessor:
             else:
                 return True
 
+    """used"""
     def update_post_title(self, json_input):
         """Update one post's title
 
@@ -468,6 +479,114 @@ class DatabaseProcessor:
         else:
             if post is None:
                 print("There is no such post!")
+                return False
+            else:
+                return True
+
+    def update_restaurant_open_hour(self, json_input):
+        """Update one restaurant's open hour
+
+        Args:
+            json_input
+                e.g.  json_input = {
+                        "_id": "",
+                        "open_hour": ["14:30-20:00", "00:00-04:00"]
+                      }
+
+        Return:
+            False if some error happened or restaurant not exist,
+            else True
+        """
+        try:
+            restaurant = self.restaurants_collection.find_one_and_update({'id': ObjectId(json_input['_id'])},
+                                                                         {'$set': {'open_hour':json_input['open_hour']}})
+        except OperationFailure:
+            print("update_restaurant_open_hour operation failed!")
+            return False
+        else:
+            if restaurant is None:
+                print('There is no such restaurant')
+                return False
+            else:
+                return True
+
+    def update_restaurant_phone_number(self, json_input):
+        """Update one restaurant's phone_number
+
+        Args:
+            json_input
+                e.g.  json_input = {
+                        "_id": "",
+                        "phone_number": "0933455455"
+                      }
+
+        Return:
+            False if some error happened or restaurant not exist,
+            else True
+        """
+        try:
+            restaurant = self.restaurants_collection.find_one_and_update({'id': ObjectId(json_input['_id'])},
+                                                                         {'$set': {'phone_number':json_input['phone_number']}})
+        except OperationFailure:
+            print("update_restaurant_phone_number operation failed!")
+            return False
+        else:
+            if restaurant is None:
+                print('There is no such restaurant')
+                return False
+            else:
+                return True
+
+    def update_restaurant_service(self, json_input):
+        """Update one restaurant's service
+
+        Args:
+            json_input
+                e.g.  json_input = {
+                        "_id": "",
+                        "service": ["外帶", "外送"]
+                      }
+
+        Return:
+            False if some error happened or restaurant not exist,
+            else True
+        """
+        try:
+            restaurant = self.restaurants_collection.find_one_and_update({'id': ObjectId(json_input['_id'])},
+                                                                         {'$set': {'service':json_input['service']}})
+        except OperationFailure:
+            print("update_restaurant_service operation failed!")
+            return False
+        else:
+            if restaurant is None:
+                print('There is no such restaurant')
+                return False
+            else:
+                return True
+
+    def update_restaurant_web(self, json_input):
+        """Update one restaurant's web
+
+        Args:
+            json_input
+                e.g.  json_input = {
+                        "_id": "",
+                        "web": "www.facebook.com"
+                      }
+
+        Return:
+            False if some error happened or restaurant not exist,
+            else True
+        """
+        try:
+            restaurant = self.restaurants_collection.find_one_and_update({'id': ObjectId(json_input['_id'])},
+                                                                         {'$set': {'web':json_input['web']}})
+        except OperationFailure:
+            print("update_restaurant_web operation failed!")
+            return False
+        else:
+            if restaurant is None:
+                print('There is no such restaurant')
                 return False
             else:
                 return True
