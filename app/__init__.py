@@ -1,3 +1,5 @@
+"""Init of flask app and api."""
+
 from datetime import timedelta
 import os
 from flask import Flask
@@ -23,4 +25,4 @@ redis_db = redis.Redis(host=os.getenv("REDIS_HOST"),
 
 from app import index
 from app import recommender
-from app import auth
+from app import auth, posts, comments, restaurants
