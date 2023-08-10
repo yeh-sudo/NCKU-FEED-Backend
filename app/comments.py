@@ -31,9 +31,9 @@ class Comments(Resource):
         args = comments_args.parse_args()
         result = self.database_processor.get_comment_from_restaurant_or_post(args.target_id)
         if not result:
-            return {}, 500, {"Access-Control-Allow-Origin": "*"}
+            return {}, 500
         else:
-            return {"comments": result}, 200, {"Access-Control-Allow-Origin": "*"}
+            return {"comments": result}, 200
 
     @jwt_required()
     def post(self):
@@ -59,9 +59,9 @@ class Comments(Resource):
             content=args.content
         )
         if self.database_processor.insert_comment(comment.dict()):
-            return {}, 201, {"Access-Control-Allow-Origin": "*"}
+            return {}, 201
         else:
-            return {}, 500, {"Access-Control-Allow-Origin": "*"}
+            return {}, 500
 
     @jwt_required()
     def put(self):
@@ -77,9 +77,9 @@ class Comments(Resource):
             "content": args.content
         }
         if self.database_processor.update_comment_content(json_input):
-            return {}, 200, {"Access-Control-Allow-Origin": "*"}
+            return {}, 200
         else:
-            return {}, 500, {"Access-Control-Allow-Origin": "*"}
+            return {}, 500
 
     @jwt_required()
     def delete(self):
@@ -91,8 +91,8 @@ class Comments(Resource):
 
         args = comments_args.parse_args()
         if self.database_processor.delete_comment(args.comment_id):
-            return {}, 200, {"Access-Control-Allow-Origin": "*"}
+            return {}, 200
         else:
-            return {}, 500, {"Access-Control-Allow-Origin": "*"}
+            return {}, 500
 
 api.add_resource(Comments, "/posts")

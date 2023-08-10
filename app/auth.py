@@ -56,10 +56,7 @@ class Auth(Resource):
         return {
             "access_token": access_token,
             "user_info": user_info
-        }, 200, {
-            "Access-Control-Allow-Origin": "*",
-            "Access-Control-Allow-Methods": "*"
-        }
+        }, 200
 
     def post(self):
         """POST method for authentication api.
@@ -101,10 +98,7 @@ class Auth(Resource):
         return {
             "access_token": access_token,
             "user_info": user_info
-        }, 201, {
-            "Access-Control-Allow-Origin": "*",
-            "Access-Control-Allow-Methods": "*"
-        }
+        }, 201
 
     @jwt_required()
     def put(self):
@@ -137,10 +131,7 @@ class Auth(Resource):
             thread.join()
             create_user_hmap(uid, args.preference)
         user = User(**user_collection.find_one({"uid": uid}))
-        return user.dict(), 200, {
-            "Access-Control-Allow-Origin": "*",
-            "Access-Control-Allow-Methods": "*"
-        }
+        return user.dict(), 200
 
     @jwt_required()
     def delete(self):
@@ -156,10 +147,7 @@ class Auth(Resource):
         user_collection.update_one({"uid": uid},
                                    {"$pull": {"restaurants_id": args.restaurant_id}})
         user = User(**user_collection.find_one({"uid": uid}))
-        return user.dict(), 200, {
-            "Access-Control-Allow-Origin": "*",
-            "Access-Control-Allow-Methods": "*"
-        }
+        return user.dict(), 200
 
 
 class Logout(Resource):
@@ -179,8 +167,7 @@ class Logout(Resource):
         thread = RecommendComputeTask(uid)
         thread.start()
         redis_db.set(jti, "", ex=timedelta(hours=1))
-        return {"message": "Logout successfully."}, 200, {"Access-Control-Allow-Origin": "*",
-                                                            "Access-Control-Allow-Methods": "*"}
+        return {"message": "Logout successfully."}, 200
 
 
 api.add_resource(Auth, "/user")
