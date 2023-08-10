@@ -483,6 +483,7 @@ class DatabaseProcessor:
             else:
                 return True
 
+    """used"""
     def update_restaurant_open_hour(self, json_input):
         """Update one restaurant's open hour
 
@@ -498,7 +499,7 @@ class DatabaseProcessor:
             else True
         """
         try:
-            restaurant = self.restaurants_collection.find_one_and_update({'id': ObjectId(json_input['_id'])},
+            restaurant = self.restaurants_collection.find_one_and_update({'_id': ObjectId(json_input["_id"])},
                                                                          {'$set': {'open_hour':json_input['open_hour']}})
         except OperationFailure:
             print("update_restaurant_open_hour operation failed!")
@@ -506,10 +507,12 @@ class DatabaseProcessor:
         else:
             if restaurant is None:
                 print('There is no such restaurant')
+                print(json_input['_id'])
                 return False
             else:
                 return True
 
+    """used"""
     def update_restaurant_phone_number(self, json_input):
         """Update one restaurant's phone_number
 
@@ -525,7 +528,7 @@ class DatabaseProcessor:
             else True
         """
         try:
-            restaurant = self.restaurants_collection.find_one_and_update({'id': ObjectId(json_input['_id'])},
+            restaurant = self.restaurants_collection.find_one_and_update({'_id': ObjectId(json_input['_id'])},
                                                                          {'$set': {'phone_number':json_input['phone_number']}})
         except OperationFailure:
             print("update_restaurant_phone_number operation failed!")
@@ -533,10 +536,12 @@ class DatabaseProcessor:
         else:
             if restaurant is None:
                 print('There is no such restaurant')
+                print(json_input['_id'])
                 return False
             else:
                 return True
 
+    """used"""
     def update_restaurant_service(self, json_input):
         """Update one restaurant's service
 
@@ -552,7 +557,7 @@ class DatabaseProcessor:
             else True
         """
         try:
-            restaurant = self.restaurants_collection.find_one_and_update({'id': ObjectId(json_input['_id'])},
+            restaurant = self.restaurants_collection.find_one_and_update({'_id': ObjectId(json_input['_id'])},
                                                                          {'$set': {'service':json_input['service']}})
         except OperationFailure:
             print("update_restaurant_service operation failed!")
@@ -564,7 +569,8 @@ class DatabaseProcessor:
             else:
                 return True
 
-    def update_restaurant_web(self, json_input):
+    """used"""
+    def update_restaurant_website(self, json_input):
         """Update one restaurant's web
 
         Args:
@@ -579,14 +585,41 @@ class DatabaseProcessor:
             else True
         """
         try:
-            restaurant = self.restaurants_collection.find_one_and_update({'id': ObjectId(json_input['_id'])},
-                                                                         {'$set': {'web':json_input['web']}})
+            restaurant = self.restaurants_collection.find_one_and_update({'_id': ObjectId(json_input['_id'])},
+                                                                         {'$set': {'website':json_input['website']}})
         except OperationFailure:
             print("update_restaurant_web operation failed!")
             return False
         else:
             if restaurant is None:
                 print('There is no such restaurant')
+                return False
+            else:
+                return True
+
+    """used"""
+    def delete_restaurant(self, restaurant_id):
+        """Delete one post
+
+            Args:
+                restaurant_id (_id)
+                e.g.:
+                {
+                    "id": "64d10a7279e8302c9c3a050a"
+                }
+
+            Return:
+                False if some error happened,
+                else True
+        """
+        try:
+            restaurant = self.restaurants_collection.find_one_and_delete({'_id': ObjectId(restaurant_id)})
+        except OperationFailure:
+            print('delete_restaurant operation failed!')
+            return False
+        else:
+            if restaurant is None:
+                print("There is no such restaurant!")
                 return False
             else:
                 return True
