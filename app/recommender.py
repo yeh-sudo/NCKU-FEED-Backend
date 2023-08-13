@@ -23,4 +23,29 @@ class Recommender(Resource):
         recommendation = RecommendList(**recommend_list_collection.find_one({"uid": uid}))
         return recommendation.dict(), 200
 
+
+class RandomRecommender(Resource):
+    """The class provide GET for frontend to get recommend list without
+    jwt token.
+    """
+
+    def get(self):
+        """GET method to get random recommend list from database.
+
+        Return:
+            List of random recommendation.
+        """
+
+        restaurants_collection = nckufeed_db["restaurants"]
+        random_recommendation = list(
+            restaurants_collection.aggregate(
+                [
+                    { "$sample": { "size": 100 } },
+                    { "$project": { "_id": 0 } }
+                ]
+            )
+        )
+        return {"random_recommendation": random_recommendation}, 200
+
 api.add_resource(Recommender, "/recommend")
+api.add_resource(RandomRecommender, "/randomRecommend")
