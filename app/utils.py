@@ -2,6 +2,7 @@
 
 from threading import Thread
 from datetime import datetime, timedelta, timezone
+import random
 import json
 from bson import ObjectId
 import pandas as pd
@@ -20,7 +21,8 @@ food_types = ["American Foods",
               "Pizza",
               "Desserts",
               "Street Foods",
-              "Drinks", "Cafe",
+              "Drinks",
+              "Cafe",
               "BBQ",
               "Indian Foods",
               "Hong Kong Style Foods",
@@ -102,30 +104,49 @@ class RecommendComputeTask(Thread):
 
         recommendation = []
         count = 0
+        page = 1
+        recommend_list_collection = nckufeed_db["recommend_list"]
         for _, row in restaurants_df.iterrows():
-            if count == 30:
-                break
+            if count == 100:
+                count = 0
+                random.shuffle(recommendation) # Shuffle list
+                recommend_list = RecommendList(
+                    uid=self.__uid,
+                    page=page,
+                    recommendation=recommendation
+                )
+                recommend_list_collection.update_one(
+                    { "uid": self.__uid, "page": page },
+                    { "$set": recommend_list.dict() },
+                    upsert=True
+                )
+                recommendation = []
+                page += 1
+
             restaurant = Restaurant(
                 name=row["name"],
                 star=row["star"],
                 tags=row["tags"],
-                open_hour=[row["open_hour"]],
+                open_hour=row["open_hour"],
                 address=row["address"],
                 phone_number=row["phone_number"],
-                service=[row["service"]],
-                web=row["web"]
+                service=row["service"],
+                website=row["website"]
             )
             recommendation.append(restaurant)
             count += 1
 
+        # Add remaining recommend list to database
         recommend_list = RecommendList(
             uid=self.__uid,
+            page=page,
             recommendation=recommendation
         )
-        recommend_list_collection = nckufeed_db["recommend_list"]
-        recommend_list_collection.update_one({"uid": self.__uid},
-                                             {"$set": recommend_list.dict()},
-                                             upsert=True)
+        recommend_list_collection.update_one(
+            { "uid": self.__uid, "page": page },
+            { "$set": recommend_list.dict() },
+            upsert=True
+        )
 
 
 @app.after_request

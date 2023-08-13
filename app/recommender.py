@@ -11,7 +11,7 @@ class Recommender(Resource):
     """
 
     @jwt_required()
-    def get(self):
+    def get(self, page):
         """GET method to get recommend list from database.
 
         Return:
@@ -20,8 +20,16 @@ class Recommender(Resource):
 
         uid = get_jwt()["uid"]
         recommend_list_collection = nckufeed_db["recommend_list"]
-        recommendation = RecommendList(**recommend_list_collection.find_one({"uid": uid}))
-        return recommendation.dict(), 200
+        user_recommendation = list(
+            recommend_list_collection.find(
+                {
+                    "uid": uid,
+                    "page": int(page)
+                }
+            )
+        )
+        recommend_list = RecommendList(**user_recommendation[0])
+        return recommend_list.dict(), 200
 
 
 class RandomRecommender(Resource):
@@ -45,7 +53,7 @@ class RandomRecommender(Resource):
                 ]
             )
         )
-        return {"random_recommendation": random_recommendation}, 200
+        return { "random_recommendation": random_recommendation }, 200
 
-api.add_resource(Recommender, "/recommend")
+api.add_resource(Recommender, "/recommend/<string:page>")
 api.add_resource(RandomRecommender, "/randomRecommend")
