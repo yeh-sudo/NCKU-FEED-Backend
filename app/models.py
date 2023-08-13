@@ -49,10 +49,11 @@ class User(BaseModel):
     preference: List[float] = Field(default_factory=list)
 
 class RecommendList(BaseModel):
-    """Recommend list model.
+    """Recommend list model. 100 restaurants for one page.
     """
 
     uid: str
+    page: int
     recommendation: List[Restaurant]
 
 class Post(BaseModel):
