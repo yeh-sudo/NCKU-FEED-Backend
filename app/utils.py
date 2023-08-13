@@ -3,6 +3,7 @@
 from threading import Thread
 from datetime import datetime, timedelta, timezone
 import json
+from bson import ObjectId
 import pandas as pd
 import numpy as np
 from sklearn.preprocessing import MultiLabelBinarizer
@@ -10,7 +11,6 @@ from flask_jwt_extended import get_jwt, create_access_token
 from pymongo.errors import OperationFailure
 from app import app, redis_db, nckufeed_db, jwt
 from app.models import Restaurant, RecommendList, Comment, Post
-from bson import ObjectId
 
 food_types = ["American Foods",
               "Taiwanese Foods",
