@@ -48,11 +48,12 @@ class RandomRecommender(Resource):
         random_recommendation = list(
             restaurants_collection.aggregate(
                 [
-                    { "$sample": { "size": 100 } },
-                    { "$project": { "_id": 0 } }
+                    { "$sample": { "size": 100 } }
                 ]
             )
         )
+        for recommendation in random_recommendation:
+            recommendation["_id"] = str(recommendation["_id"])
         return { "random_recommendation": random_recommendation }, 200
 
 api.add_resource(Recommender, "/recommend/<string:page>")
