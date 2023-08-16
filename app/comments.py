@@ -18,6 +18,7 @@ class Comments(Resource):
     to user to create or modify comments, and GET method
     to get comments.
     """
+
     database_processor = DatabaseProcessor()
 
     @jwt_required()
