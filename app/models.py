@@ -2,7 +2,7 @@
 
 from typing import List, Optional
 from datetime import datetime, timedelta, timezone
-from pydantic import BaseModel, Field
+from pydantic import BaseModel, Field, validator
 
 class Rating(BaseModel):
     """Rating model.
@@ -35,6 +35,12 @@ class Restaurant(BaseModel):
     phone_number: Optional[str] = None
     service: List[str] = Field(default_factory=list)
     website: Optional[str] = None
+
+    @validator("tags", "open_hour", "service", always=True, pre=True)
+    def if_field_is_none(cls, value):
+        if value is None:
+            return []
+        return value
 
 class User(BaseModel):
     """User model.
