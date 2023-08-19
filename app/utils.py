@@ -221,8 +221,8 @@ class DatabaseProcessor:
 
         try:
             restaurant = Restaurant(**restaurant_info)
-            self.restaurants_collection.insert_one(restaurant.dict())
-            return True
+            result = self.restaurants_collection.insert_one(restaurant.dict())
+            return {"status": True, "id": result.inserted_id}
         except OperationFailure as error:
             print("Insert new restaurant failed!!")
             print(error)
@@ -598,7 +598,7 @@ class DatabaseProcessor:
             json_input
                 e.g.  json_input = {
                         "_id": "",
-                        "web": "www.facebook.com"
+                        "website": "www.facebook.com"
                       }
 
         Return:
@@ -614,6 +614,35 @@ class DatabaseProcessor:
         else:
             if restaurant is None:
                 print('There is no such restaurant')
+                return False
+            else:
+                return True
+
+    """used"""
+    def update_restaurant_tags(self, json_input):
+        """Update one restaurant's tag
+
+        Args:
+            json_input
+                e.g.  json_input = {
+                        "_id": "",
+                        "tags": ["Taiwanese Foods", "Street Foods"]
+                      }
+
+        Return:
+            False if some error happened or restaurant not exist,
+            else True
+        """
+        try:
+            restaurant = self.restaurants_collection.find_one_and_update({'_id': ObjectId(json_input["_id"])},
+                                                                         {'$set': {'tags':json_input['tags']}})
+        except OperationFailure:
+            print("update_restaurant_tag operation failed!")
+            return False
+        else:
+            if restaurant is None:
+                print('There is no such restaurant')
+                print(json_input['_id'])
                 return False
             else:
                 return True
