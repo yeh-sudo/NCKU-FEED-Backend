@@ -1,4 +1,4 @@
-"""Provide api for user to create new posts."""
+"""Provide api for user to create new restaurant."""
 
 from flask_restful import Resource, reqparse
 from flask_jwt_extended import jwt_required
@@ -9,7 +9,7 @@ from app.utils import DatabaseProcessor
 
 restaurants_args = reqparse.RequestParser()
 restaurants_args.add_argument("name", type=str)
-restaurants_args.add_argument("star", type=float)
+restaurants_args.add_argument("star", type=float, default=0)
 restaurants_args.add_argument("tags", type=str, action="append")
 restaurants_args.add_argument("open_hour", type=str, action="append")
 restaurants_args.add_argument("address", type=str)
@@ -38,24 +38,32 @@ class Restaurants(Resource):
     @jwt_required()
     def post(self):
         args = restaurants_args.parse_args()
-        new_restaurant = Restaurant(
-            name=args.name,
-            star=args.star,
-            tags=args.tags,
-            open_hour=args.open_hour,
-            address=args.address,
-            phone_number=args.phone_number,
-            service=args.service,
-            website=args.website
-        )
-        if self.database_processor.insert_restaurant(new_restaurant.dict()):
-            return {}, 201
+        new_restaurant = {
+            'name': args.name,
+            'star': args.star,
+            'tags': args.tags,
+            'open_hour': args.open_hour,
+            'address': args.address,
+            'phone_number': args.phone_number,
+            'service': args.service,
+            'website': args.website
+        }
+        post_result = self.database_processor.insert_restaurant(new_restaurant)
+        if post_result['status']:
+            return {'id': str(post_result['id'])}, 201
         else:
             return {}, 500
 
     @jwt_required()
     def put(self):
         args = restaurants_args.parse_args()
+        if args.tags is not None:
+            json_input = {
+                "_id": args.id,
+                "tags": args.tags,
+            }
+            if not self.database_processor.update_restaurant_tags(json_input):
+                return {"message": "update restaurant's tags error."}, 500
         if args.open_hour is not None:
             json_input = {
                 "_id": args.id,
@@ -77,7 +85,7 @@ class Restaurants(Resource):
             }
             if not self.database_processor.update_restaurant_service(json_input):
                 return {"message": "update restaurant's service error."}, 500
-        if args.web is not None:
+        if args.website is not None:
             json_input = {
                 "_id": args.id,
                 "website": args.website,
@@ -88,7 +96,7 @@ class Restaurants(Resource):
     @jwt_required()
     def delete(self):
         args = restaurants_args.parse_args()
-        if self.database_processor.delete_post(args.id):
+        if self.database_processor.delete_restaurant(args.id):
             return {}, 200
         else:
             return {}, 500
