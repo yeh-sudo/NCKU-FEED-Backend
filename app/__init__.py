@@ -27,4 +27,4 @@ redis_db = redis.Redis(host=os.getenv("REDIS_HOST"),
 
 from app import index
 from app import recommender
-from app import auth, posts, comments, restaurants
+from app import auth, posts, comments, restaurants, search
