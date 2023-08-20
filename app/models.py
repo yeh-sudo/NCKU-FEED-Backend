@@ -27,6 +27,7 @@ class Restaurant(BaseModel):
     """Restaurant model.
     """
 
+    restaurant_id: Optional[str]
     name: str
     star: float = Field(default=0, ge=0)
     tags: List[str] = Field(default_factory=list)

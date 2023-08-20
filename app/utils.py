@@ -124,6 +124,7 @@ class RecommendComputeTask(Thread):
                 page += 1
 
             restaurant = Restaurant(
+                restaurant_id=str(row["_id"]),
                 name=row["name"],
                 star=row["star"],
                 tags=row["tags"],
