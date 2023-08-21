@@ -117,14 +117,14 @@ class RecommendComputeTask(Thread):
                 )
                 recommend_list_collection.update_one(
                     { "uid": self.__uid, "page": page },
-                    { "$set": recommend_list.dict() },
+                    { "$set": { "recommendation": recommend_list.dict(by_alias=True) } },
                     upsert=True
                 )
                 recommendation = []
                 page += 1
 
             restaurant = Restaurant(
-                restaurant_id=str(row["_id"]),
+                _id=str(row["_id"]),
                 name=row["name"],
                 star=row["star"],
                 tags=row["tags"],
@@ -134,7 +134,7 @@ class RecommendComputeTask(Thread):
                 service=row["service"],
                 website=row["website"]
             )
-            recommendation.append(restaurant)
+            recommendation.append(restaurant.dict(by_alias=True))
             count += 1
 
         # Add remaining recommend list to database
@@ -145,7 +145,7 @@ class RecommendComputeTask(Thread):
         )
         recommend_list_collection.update_one(
             { "uid": self.__uid, "page": page },
-            { "$set": recommend_list.dict() },
+            { "$set": { "recommendation": recommend_list.dict(by_alias=True) } },
             upsert=True
         )
 
