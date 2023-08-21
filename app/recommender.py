@@ -25,11 +25,16 @@ class Recommender(Resource):
                 {
                     "uid": uid,
                     "page": int(page)
-                }
+                },
+                { "_id": 0 }
             )
         )
-        recommend_list = RecommendList(**user_recommendation[0])
-        return recommend_list.dict(), 200
+        recommend_list = RecommendList(
+            uid=uid,
+            page=page,
+            recommendation=user_recommendation[0]["recommendation"]
+        )
+        return recommend_list.dict(by_alias=True), 200
 
 
 class RandomRecommender(Resource):
