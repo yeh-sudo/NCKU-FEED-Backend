@@ -520,9 +520,10 @@ class DatabaseProcessor:
             False if some error happened or restaurant not exist,
             else True
         """
+        """addToSet prevent duplicate elements, each to push multi elements"""
         try:
             restaurant = self.restaurants_collection.find_one_and_update({'_id': ObjectId(json_input["_id"])},
-                                                                         {'$set': {'open_hour':json_input['open_hour']}})
+                                                                         {'$addToSet': {'open_hour': {'$each': json_input['open_hour']}}})
         except OperationFailure:
             print("update_restaurant_open_hour operation failed!")
             return False
@@ -580,7 +581,7 @@ class DatabaseProcessor:
         """
         try:
             restaurant = self.restaurants_collection.find_one_and_update({'_id': ObjectId(json_input['_id'])},
-                                                                         {'$set': {'service':json_input['service']}})
+                                                                         {'$addToSet': {'service': {'$each': json_input['service']}}})
         except OperationFailure:
             print("update_restaurant_service operation failed!")
             return False
@@ -636,7 +637,7 @@ class DatabaseProcessor:
         """
         try:
             restaurant = self.restaurants_collection.find_one_and_update({'_id': ObjectId(json_input["_id"])},
-                                                                         {'$set': {'tags':json_input['tags']}})
+                                                                         {'$addToSet': {'tags': {'$each':json_input['tags']}}})
         except OperationFailure:
             print("update_restaurant_tag operation failed!")
             return False
