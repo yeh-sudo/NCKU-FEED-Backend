@@ -29,6 +29,7 @@ class Restaurant(BaseModel):
 
     restaurant_id: Optional[str] = Field(alias="_id")
     name: str
+    photos: List[str] = Field(default_factory=list)
     star: float = Field(default=0, ge=0)
     tags: List[str] = Field(default_factory=list)
     open_hour: List[str] = Field(default_factory=list)
@@ -37,7 +38,7 @@ class Restaurant(BaseModel):
     service: List[str] = Field(default_factory=list)
     website: Optional[str] = None
 
-    @validator("tags", "open_hour", "service", always=True, pre=True)
+    @validator("tags", "open_hour", "service", "photos", always=True, pre=True)
     def if_field_is_none(cls, value):
         if value is None:
             return []

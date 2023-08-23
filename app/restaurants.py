@@ -9,6 +9,7 @@ from app.utils import DatabaseProcessor
 
 restaurants_args = reqparse.RequestParser()
 restaurants_args.add_argument("name", type=str)
+restaurants_args.add_argument("photos", type=str, action="append")
 restaurants_args.add_argument("star", type=float, default=0)
 restaurants_args.add_argument("tags", type=str, action="append")
 restaurants_args.add_argument("open_hour", type=str, action="append")
@@ -40,6 +41,7 @@ class Restaurants(Resource):
         args = restaurants_args.parse_args()
         new_restaurant = {
             'name': args.name,
+            'photos': args.photos,
             'star': args.star,
             'tags': args.tags,
             'open_hour': args.open_hour,
@@ -92,6 +94,13 @@ class Restaurants(Resource):
             }
             if not self.database_processor.update_restaurant_website(json_input):
                 return {"message": "update restaurant's web error."}, 500
+        if args.photos is not None:
+            json_input = {
+                "_id": args.id,
+                "photos": args.photos
+            }
+            if not self.database_processor.update_restaurant_photos(json_input):
+                return {"message": "update restaurant's photo error."}, 500
 
     @jwt_required()
     def delete(self):

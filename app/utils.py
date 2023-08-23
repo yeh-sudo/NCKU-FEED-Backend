@@ -650,6 +650,37 @@ class DatabaseProcessor:
                 return True
 
     """used"""
+
+    def update_restaurant_photos(self, json_input):
+        """Update one restaurant's photo
+
+        Args:
+            json_input
+                e.g.  json_input = {
+                        "_id": "",
+                        "photos": ["url1", "url2"]
+                      }
+
+        Return:
+            False if some error happened or restaurant not exist,
+            else True
+        """
+        try:
+            restaurant = self.restaurants_collection.find_one_and_update({'_id': ObjectId(json_input["_id"])},
+                                                                         {'$addToSet': {
+                                                                             'photos': {'$each': json_input['photos']}}})
+        except OperationFailure:
+            print("update_restaurant_photos operation failed!")
+            return False
+        else:
+            if restaurant is None:
+                print('There is no such restaurant')
+                print(json_input['_id'])
+                return False
+            else:
+                return True
+
+    """used"""
     def delete_restaurant(self, restaurant_id):
         """Delete one post
 
