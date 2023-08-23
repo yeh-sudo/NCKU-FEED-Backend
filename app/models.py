@@ -29,6 +29,7 @@ class Restaurant(BaseModel):
 
     restaurant_id: Optional[str] = Field(alias="_id")
     name: str
+    photos: List[str] = Field(default_factory=list)
     star: float = Field(default=0, ge=0)
     tags: List[str] = Field(default_factory=list)
     open_hour: List[str] = Field(default_factory=list)
