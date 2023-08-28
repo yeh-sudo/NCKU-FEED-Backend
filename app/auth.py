@@ -128,6 +128,7 @@ class Auth(Resource):
             create_user_hmap(uid, args.preference)
             thread = RecommendComputeTask(uid)
             thread.start()
+            # TODO: Fix waiting problem
             thread.join()
             create_user_hmap(uid, args.preference)
         user = User(**user_collection.find_one({"uid": uid}))

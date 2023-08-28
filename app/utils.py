@@ -115,9 +115,9 @@ class RecommendComputeTask(Thread):
                     page=page,
                     recommendation=recommendation
                 )
-                recommend_list_collection.update_one(
+                recommend_list_collection.find_one_and_update(
                     { "uid": self.__uid, "page": page },
-                    { "$set": { "recommendation": recommend_list.dict(by_alias=True) } },
+                    { "$addToSet": { "recommendation": { "$each": recommend_list.dict(by_alias=True)["recommendation"] } } },
                     upsert=True
                 )
                 recommendation = []
@@ -143,9 +143,9 @@ class RecommendComputeTask(Thread):
             page=page,
             recommendation=recommendation
         )
-        recommend_list_collection.update_one(
+        recommend_list_collection.find_one_and_update(
             { "uid": self.__uid, "page": page },
-            { "$set": { "recommendation": recommend_list.dict(by_alias=True) } },
+            { "$addToSet": { "recommendation": { "$each": recommend_list.dict(by_alias=True)["recommendation"] } } },
             upsert=True
         )
 
