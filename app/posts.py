@@ -45,7 +45,7 @@ class Posts(Resource):
             comments_id=[]
         )
         if self.database_processor.insert_post(new_post.dict()):
-            return {}, 201
+            return new_post.dict(), 201
         else:
             return {}, 500
 
@@ -66,6 +66,13 @@ class Posts(Resource):
             }
             if not self.database_processor.update_post_title(json_input):
                 return {"message": "update post's title error."}, 500
+        if args.like is not None:
+            json_input = {
+                "_id": args.id,
+                "like": args.like
+            }
+            if not self.database_processor.update_post_like(json_input):
+                return {"message": "update post's like error."}, 500
 
     @jwt_required()
     def delete(self):
