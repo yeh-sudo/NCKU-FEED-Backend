@@ -293,12 +293,12 @@ class DatabaseProcessor:
 
         try:
             comment = Comment(**json_input)
-            self.comments_collection.insert_one(comment.dict())
-            return True
+            inserted_id = str(self.comments_collection.insert_one(comment.dict()).inserted_id)
+            return inserted_id
         except OperationFailure as error:
             print("Insert new restaurant failed!!")
             print(error)
-            return False
+            return "False"
 
     """used"""
     def update_comment_content(self, json_input):
@@ -339,7 +339,9 @@ class DatabaseProcessor:
                 else return a comment list.
         """
         try:
-            comments = self.comments_collection.find({"target_id": target_id})
+            comments = list(self.comments_collection.find({"target_id": target_id}))
+            for comment in comments:
+                comment["_id"] = str(comment["_id"])
         except OperationFailure:
             print("get_comment_from_restaurant_or_post operation failed!")
             return False
@@ -469,6 +471,33 @@ class DatabaseProcessor:
                                                                    {'$set': {'content': json_input['content']}})
         except OperationFailure:
             print("update_post_content operation failed!")
+            return False
+        else:
+            if post is None:
+                print("There is no such post!")
+                return False
+            else:
+                return True
+
+    def update_post_like(self, json_input):
+        """Update one post's like
+
+        Args:
+            json_input
+                e.g.  json_input = {
+                        "_id": "",
+                        "like": 1
+                      }
+
+        Return:
+            False if some error happened or post not exist,
+            else True
+        """
+        try:
+            post = self.posts_collection.find_one_and_update({'_id': ObjectId(json_input['_id'])},
+                                                             {'$inc': {'like': json_input['like']}})
+        except OperationFailure:
+            print("update_post_like operation failed!")
             return False
         else:
             if post is None:
