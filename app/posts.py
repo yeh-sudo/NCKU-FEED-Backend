@@ -6,7 +6,6 @@ from app import api
 from app.models import Post
 from app.utils import DatabaseProcessor
 
-
 posts_args = reqparse.RequestParser()
 posts_args.add_argument("title", type=str)
 posts_args.add_argument("content", type=str)
@@ -18,10 +17,8 @@ posts_args.add_argument("id", type=str)
 
 
 class Posts(Resource):
-
     database_processor = DatabaseProcessor()
 
-    @jwt_required()
     def get(self):
         parser = reqparse.RequestParser()
         parser.add_argument("post_id", type=str, location="args")
@@ -82,4 +79,35 @@ class Posts(Resource):
         else:
             return {}, 500
 
+
+class UserPosts(Resource):
+    database_processor = DatabaseProcessor()
+
+    def get(self):
+        parser = reqparse.RequestParser()
+        parser.add_argument("uid", type=str, location="args")
+        args = parser.parse_args()
+        post = self.database_processor.get_post_from_user(args.uid)
+        if not post:
+            return {}, 500
+        else:
+            return post, 200
+
+
+class RestaurantPosts(Resource):
+    database_processor = DatabaseProcessor()
+
+    def get(self):
+        parser = reqparse.RequestParser()
+        parser.add_argument("restaurant_id", type=str, location="args")
+        args = parser.parse_args()
+        post = self.database_processor.get_post_from_restaurant(args.restaurant_id)
+        if not post:
+            return {}, 500
+        else:
+            return post, 200
+
+
 api.add_resource(Posts, "/posts")
+api.add_resource(UserPosts, "/posts/user")
+api.add_resource(RestaurantPosts, "/posts/restaurant")

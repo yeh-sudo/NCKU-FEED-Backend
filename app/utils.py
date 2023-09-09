@@ -424,6 +424,52 @@ class DatabaseProcessor:
                 post['_id'] = str(post['_id'])
                 return post
 
+    def get_post_from_restaurant(self, restaurant_id):
+        """Get all posts from a restaurant or a user
+
+            Args:
+                restaurant_id (restaurant's _id)
+
+            Return:
+                False if some error happened, else return a comment list.
+        """
+        try:
+            posts = list(self.posts_collection.find({"restaurants_id": restaurant_id}))
+            for post in posts:
+                post["_id"] = str(post["_id"])
+        except OperationFailure:
+            print("get_post_from_restaurant operation failed!")
+            return False
+        else:
+            if posts is None:
+                print("There is no such post!")
+                return False
+            else:
+                return list(posts)
+
+    def get_post_from_user(self, uid):
+        """Get all posts from a restaurant or a user
+
+            Args:
+                uid (user's uid)
+
+            Return:
+                False if some error happened, else return a comment list.
+        """
+        try:
+            posts = list(self.posts_collection.find({"uid": uid}))
+            for post in posts:
+                post["_id"] = str(post["_id"])
+        except OperationFailure:
+            print("get_post_from_user operation failed!")
+            return False
+        else:
+            if posts is None:
+                print("There is no such post!")
+                return False
+            else:
+                return list(posts)
+
     """used"""
     def delete_post(self, post_id):
         """Delete one post
