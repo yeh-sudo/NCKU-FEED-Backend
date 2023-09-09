@@ -21,7 +21,6 @@ class Posts(Resource):
 
     database_processor = DatabaseProcessor()
 
-    @jwt_required()
     def get(self):
         parser = reqparse.RequestParser()
         parser.add_argument("post_id", type=str, location="args")

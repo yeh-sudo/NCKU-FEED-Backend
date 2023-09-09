@@ -21,7 +21,6 @@ class Comments(Resource):
 
     database_processor = DatabaseProcessor()
 
-    @jwt_required()
     def get(self):
         """GET method to get all comments.
 
