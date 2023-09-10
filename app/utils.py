@@ -126,13 +126,16 @@ class RecommendComputeTask(Thread):
             restaurant = Restaurant(
                 _id=str(row["_id"]),
                 name=row["name"],
+                photos=row["photos"],
                 star=row["star"],
                 tags=row["tags"],
+                frontend_tags=row["frontend_tags"],
                 open_hour=row["open_hour"],
                 address=row["address"],
                 phone_number=row["phone_number"],
                 service=row["service"],
-                website=row["website"]
+                website=row["website"],
+                gmap_url=row["gmap_url"]
             )
             recommendation.append(restaurant.dict(by_alias=True))
             count += 1

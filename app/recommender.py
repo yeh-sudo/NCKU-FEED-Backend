@@ -1,6 +1,5 @@
 """Provide api to get recommend list of specific user."""
 
-from pprint import pprint
 from flask_restful import Resource
 from flask_jwt_extended import get_jwt, jwt_required
 from app import nckufeed_db, api
@@ -30,7 +29,6 @@ class Recommender(Resource):
                 { "_id": 0 }
             )
         )
-        pprint(user_recommendation)
         recommend_list = RecommendList(
             uid=uid,
             page=page,
