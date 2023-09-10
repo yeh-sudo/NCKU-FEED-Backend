@@ -12,6 +12,6 @@ restaurants_collection = DB.restaurants_collection
 users_collection = DB.users_collection
 
 
-@app.route("/test_recommend")
+@app.route("/hello")
 def test():
     return "<h1>test<h1>"

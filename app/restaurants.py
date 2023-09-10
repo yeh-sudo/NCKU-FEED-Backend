@@ -1,10 +1,9 @@
 """Provide api for user to create new restaurant."""
 
 from flask_restful import Resource, reqparse
-from flask_jwt_extended import jwt_required
+from flask_jwt_extended import jwt_required, get_jwt
 from app import api
-from app.models import Restaurant
-from app.utils import DatabaseProcessor
+from app.utils import DatabaseProcessor, increase_preference
 
 
 restaurants_args = reqparse.RequestParser()
@@ -31,6 +30,8 @@ class Restaurants(Resource):
         parser.add_argument("restaurant_id", type=str, location="args")
         args = parser.parse_args()
         restaurant = self.database_processor.get_restaurant_info(args.restaurant_id)
+        uid = get_jwt()["uid"]
+        increase_preference(uid, restaurant["tags"])
         if not restaurant:
             return {}, 500
         else:
