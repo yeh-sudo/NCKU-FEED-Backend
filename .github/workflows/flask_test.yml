@@ -7,22 +7,13 @@ on:
 
 jobs:
   test:
-    runs-on: ${{ matrix.os }}
+    runs-on: ubuntu-latest
     defaults:
       run:
         working-directory: ./
-
-    strategy:
-      matrix:
-        os: [ubuntu-latest, macos-latest, windows-latest]
-        python-version: [3.8, 3.9, 3.10, 3.11]
-    
-    env:
-      FLASK_APP: "run.py"
-      FLASK_ENV: "development"
     
     steps:
       - uses: actions/checkout@v3
 
-      - name: Set up docker
-        run: docker compose -f ./Docker-compose.dev.yaml up --build
+      - name: Build the Docker image
+        run: docker-compose -f ./Docker-compose.dev.yaml up --build
