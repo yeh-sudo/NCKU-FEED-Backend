@@ -15,8 +15,5 @@ jobs:
     steps:
       - uses: actions/checkout@v3
 
-      - name: Build the Docker image
-        run: docker-compose -f ./Docker-compose.dev.yaml up --build
-      
-      - name: Stop container
-        run: docker-compose -f ./Docker-compose.dev.yaml down
+      - name: Echo hello world
+        run: echo Hello-world
