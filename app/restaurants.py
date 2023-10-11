@@ -19,7 +19,6 @@ restaurants_args.add_argument("website", type=str)
 restaurants_args.add_argument("id", type=str)
 
 
-
 class Restaurants(Resource):
 
     database_processor = DatabaseProcessor()
