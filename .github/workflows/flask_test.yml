@@ -17,3 +17,6 @@ jobs:
 
       - name: Build the Docker image
         run: docker-compose -f ./Docker-compose.dev.yaml up --build
+      
+      - name: Stop container
+        run: docker-compose -f ./Docker-compose.dev.yaml down
