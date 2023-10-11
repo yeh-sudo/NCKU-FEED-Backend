@@ -25,4 +25,4 @@ jobs:
       - uses: actions/checkout@v3
 
       - name: Set up docker
-        run: docker compose -f .\Docker-compose.dev.yaml up
+        run: docker compose -f ./Docker-compose.dev.yaml up --build
