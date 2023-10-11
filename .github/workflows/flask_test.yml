@@ -19,4 +19,5 @@ jobs:
         run: docker-compose -f ./Docker-compose.dev.yaml up --build
       
       - name: Stop container
+        if: always()
         run: docker-compose -f ./Docker-compose.dev.yaml down
