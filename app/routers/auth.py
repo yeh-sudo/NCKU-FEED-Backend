@@ -10,34 +10,69 @@ router = APIRouter()
 
 @router.get("/user/{uid}", status_code=status.HTTP_200_OK)
 async def get_user(uid: str = Path(description="user's uid from Firebase.")):
-    """GET method for authentication api.
+    """
+    GET method for authentication api.
 
-    Return:
-        JWT token.
+    Args:
+        uid (str): The user's uid from Firebase.
+
+    Returns:
+        dict: JWT token and user's data.
     """
 
     if uid is None:
         raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail="uid not provided.")
-    user_collection = NckufeedDB.client.nckufeed["users"]
-    user = User(**user_collection.find_one({"uid": uid}))
+    # TODO: create redis hmap
+    user = NckufeedDB().find_user(uid)
     data = {
-        "uid": user.uid,
-        "nick_name": user.nick_name,
-        "email": user.email
+        "uid": user["uid"],
+        "nick_name": user["nick_name"],
+        "email": user["email"]
     }
     access_token = create_access_token(data=data)
     return {
         "access_token": access_token,
-        "user_info": user.model_dump()
+        "user_info": user
     }
 
 
 @router.post("/user", status_code=status.HTTP_201_CREATED)
 async def create_user(new_user: User):
-    """POST method for authentication api.
+    """
+    POST method for authentication api.
 
-    Return:
-        JWT token and status code 201.
+    Args:
+        new_user (User): New user's data.
+
+    Returns:
+        dict: JWT token and user's data.
     """
 
-    return new_user.model_dump()
+    if new_user is None:
+        raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST,
+                            detail="new user not provided.")
+    new_user = NckufeedDB().create_user(new_user.model_dump())
+    data = {
+        "uid": new_user["uid"],
+        "nick_name": new_user["nick_name"],
+        "email": new_user["email"]
+    }
+    access_token = create_access_token(data=data)
+    return {
+        "access_token": access_token,
+        "user_info": new_user
+    }
+
+
+@router.put("/user", status_code=status.HTTP_200_OK)
+async def modify_user(user: User):
+    """
+    PUT method for authentication api.
+
+    Args:
+        user (User): User's data that needs to be modified.
+
+    Returns:
+        dict: User's new data.
+    """
+    # TODO: finish this

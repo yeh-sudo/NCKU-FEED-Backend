@@ -10,7 +10,7 @@ class User(BaseModel):
     uid: str
     nick_name: str
     email: str
-    self_intro: Optional[str]
+    self_intro: Optional[str] = Field(default="")
     profile_photo: Optional[str]
     restaurants_id: List[str] = Field(default_factory=list)
     preference: List[float] = Field(default_factory=list)
