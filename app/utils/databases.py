@@ -6,6 +6,7 @@ from pymongo import MongoClient
 from pymongo.errors import ConnectionFailure, OperationFailure
 import redis
 from ..models.user import User
+from .recommend_task import RecommendComputeTask
 
 class RedisDB(object):
     """
@@ -13,6 +14,25 @@ class RedisDB(object):
     """
 
     client = None
+    food_types = ["American Foods",
+                  "Taiwanese Foods",
+                  "Fast Foods",
+                  "Thai Foods",
+                  "Soup",
+                  "Pizza",
+                  "Desserts",
+                  "Street Foods",
+                  "Drinks",
+                  "Cafe",
+                  "BBQ",
+                  "Indian Foods",
+                  "Hong Kong Style Foods",
+                  "Vegetarian Diet",
+                  "Breakfast",
+                  "Korean Foods",
+                  "Italian Foods",
+                  "Seafood"
+                ]
 
     def __init__(self) -> None:
         if RedisDB.client is None:
@@ -25,7 +45,47 @@ class RedisDB(object):
                 print(f"Error: Redis connection not established {error}")
             else:
                 print("Redis: Connection established.")
-    # TODO: add redis operations
+
+    def create_user_hmap(self, uid: str, preferences: list):
+        """
+        Create hash map in redis for specific user's preference.
+
+        Args:
+            uid (str): user's uid
+            preferences (list): original preferences of user in database
+        """
+
+        for food_type, preference in zip(RedisDB.food_types, preferences):
+            RedisDB.client.hset(uid, food_type, preference)
+
+    def increase_preference(self, uid: str, tags: list):
+        """
+        Increase user's preference according to the restaurant
+        the user clicked.
+
+        Args:
+            uid (str): user's uid
+            tags (list): the restaurant's tags which the user clicked
+        """
+
+        for tag in tags:
+            RedisDB.client.hincrbyfloat(uid, tag, 0.1)
+
+    def get_preference(self, uid: str):
+        """
+        Get user's preferences.
+
+        Args:
+            uid (str): user's uid
+        
+        Return:
+            list[float]: user's preferences
+        """
+        preferences = [float(x) for x in RedisDB.client.hvals(uid)]
+        return preferences
+
+
+
 
 
 class NckufeedDB(object):
@@ -85,14 +145,105 @@ class NckufeedDB(object):
         print("[NCKUFEED Database] Successfully insert a new user.")
         return new_user
 
-    def modify_user(self, user: dict):
+    def modify_user(self, uid: str, user_data: dict):
         """
         Modify a user's data in database.
 
         Args:
-            user (dict): User's new data.
+            uid (str): User's uid.
+            user_data (dict): User's new data.
 
         Returns:
             dict: User's new data.
         """
-        # TODO: finish this
+
+        user_collection = NckufeedDB.client.nckufeed["users"]
+        if "nick_name" in user_data:
+            try:
+                user_collection.update_one(
+                    { "uid": uid },
+                    { "$set":
+                        { "nick_name":
+                            user_data["nick_name"]
+                        }
+                    }
+                )
+            except OperationFailure as error:
+                print(f"Error: Couldn't update user's name {error}")
+                raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST,
+                                detail="Can't update user's nick_name.") from error
+        if "profile_photo" in user_data:
+            try:
+                user_collection.update_one(
+                    { "uid": uid },
+                    { "$set":
+                        { "profile_photo":
+                            user_data["profile_photo"]
+                        }
+                    }
+                )
+            except OperationFailure as error:
+                print(f"Error: Couldn't update user's profile_photo {error}")
+                raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST,
+                                detail="Can't update user's profile_photo.") from error
+        if "self_intro" in user_data:
+            try:
+                user_collection.update_one(
+                    { "uid": uid },
+                    { "$set":
+                        { "self_intro":
+                            user_data["self_intro"]
+                        }
+                    }
+                )
+            except OperationFailure as error:
+                print(f"Error: Couldn't update user's self_intro {error}")
+                raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST,
+                                detail="Can't update user's self_intro.") from error
+        if "restaurants_id" in user_data:
+            try:
+                user_collection.update_one(
+                    { "uid": uid },
+                    { "$push":
+                        { "restaurants_id":
+                            user_data["restaurants_id"]
+                        }
+                    }
+                )
+            except OperationFailure as error:
+                print(f"Error: Couldn't update user's self_intro {error}")
+                raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST,
+                                detail="Can't update user's self_intro.") from error
+        if "preference" in user_data:
+            RedisDB().create_user_hmap(uid, user_data["preference"])
+            thread = RecommendComputeTask(uid)
+            thread.start()
+            thread.join()
+            RedisDB().create_user_hmap(uid, user_data["preference"])
+        user_info = self.find_user(uid)
+        return user_info
+
+    def delete_restaurant_id(self, uid: str, restaurant_id: str):
+        """
+        Delete a restaurant_id in user's data.
+
+        Args:
+            uid (str): User's uid.
+            restaurant_id (str): The restaurant id which will be delete.
+
+        Returns:
+            dict: User's new data.
+        """
+
+        user_collection = NckufeedDB.client.nckufeed["users"]
+        try:
+            user_collection.update_one(
+                { "uid": uid },
+                { "$pull": { "restaurants_id": restaurant_id } }
+            )
+        except OperationFailure as error:
+            print(f"Error: Couldn't delete restaurant id in user's data {error}")
+            raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST,
+                                detail="Can't delete restaurant id.") from error
+        user_info = self.find_user(uid)
+        return user_info

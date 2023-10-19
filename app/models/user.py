@@ -7,10 +7,10 @@ class User(BaseModel):
     """User model.
     """
 
-    uid: str
-    nick_name: str
-    email: str
+    uid: Optional[str] = Field(default=None)
+    nick_name: Optional[str] = Field(default=None)
+    email: Optional[str] = Field(default=None)
     self_intro: Optional[str] = Field(default="")
-    profile_photo: Optional[str]
+    profile_photo: Optional[str] = Field(default=None)
     restaurants_id: List[str] = Field(default_factory=list)
     preference: List[float] = Field(default_factory=list)

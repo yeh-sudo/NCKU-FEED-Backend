@@ -3,27 +3,26 @@
 import os
 from datetime import timedelta, datetime
 from typing import Union
-from fastapi import HTTPException, status
+from fastapi import HTTPException, status, Header
 from jose import JWTError, ExpiredSignatureError, jwt
 
 
-def create_access_token(data: dict, expires_delta: Union[timedelta, None] = None):
+def create_access_token(data: str, expires_delta: Union[timedelta, None] = None):
     """Create JWT token when a user login or register.
     """
 
-    to_encode = data.copy()
     if expires_delta:
         expire = datetime.utcnow() + expires_delta
     else:
         expire = datetime.utcnow() + timedelta(days=10)
-    to_encode.update({"exp": expire})
+    to_encode = {"exp": expire, "sub": data}
     encoded_jwt = jwt.encode(to_encode,
                              os.getenv("JWT_SECRET_KEY"),
                              algorithm=os.getenv("JWT_ALGORITHM"))
     return encoded_jwt
 
 
-async def validate_token(token: str):
+async def validate_token(access_token: Union[None, str] = Header(..., alias="access-token")):
     """Validate JWT token and refresh expired time.
     """
 
@@ -32,11 +31,13 @@ async def validate_token(token: str):
         detail="Could not validate credentials",
         headers={"WWW-Authenticate": "Bearer"}
     )
+    if access_token is None:
+        raise credentials_exception
     try:
-        payload = jwt.decode(token,
+        payload = jwt.decode(access_token,
                              os.getenv("JWT_SECRET_KEY"),
                              algorithms=os.getenv("JWT_ALGORITHM"))
-        uid: str = payload.get("uid")
+        uid: str = payload.get("sub")
         if uid is None:
             raise credentials_exception
     except ExpiredSignatureError as exc:
