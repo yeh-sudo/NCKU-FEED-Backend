@@ -1,7 +1,7 @@
 """Provide api for user to login, register and logout."""
 
 from typing import Union
-from fastapi import APIRouter, Depends, status, Path, HTTPException
+from fastapi import APIRouter, Depends, status, Path, HTTPException, BackgroundTasks
 from ..utils.jwt import create_access_token, validate_token
 from ..utils.databases import NckufeedDB, RedisDB
 from ..utils.recommend_task import RecommendComputeTask
@@ -103,7 +103,7 @@ async def delete_restaurant_id(restaurant_id: str, uid: Union[None, str] = Depen
 
 
 @router.get("/logout", status_code=status.HTTP_200_OK)
-async def logout(uid: Union[None, str] = Depends(validate_token)):
+async def logout(background_task: BackgroundTasks, uid: Union[None, str] = Depends(validate_token)):
     """
     GET method for user to logout.
 
@@ -114,6 +114,13 @@ async def logout(uid: Union[None, str] = Depends(validate_token)):
         Return successful message if logout successfully.
     """
 
-    thread = RecommendComputeTask(uid)
-    thread.start()
+    if uid is None:
+        raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST,
+                            detail="JWT token is invalid.")
+
+    def compute_recommendation(uid: str):
+        compute_recommendation = RecommendComputeTask(uid)
+        compute_recommendation.run()
+
+    background_task.add_task(compute_recommendation, uid)
     return { "message": "Logout successfully." }
