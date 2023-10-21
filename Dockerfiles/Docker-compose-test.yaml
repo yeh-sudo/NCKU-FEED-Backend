@@ -4,9 +4,9 @@ services:
     image: "redis:latest"
     tty: true
     stdin_open: true
-  server:
+  server-test:
     build:
-      dockerfile: ./Dockerfiles/Dockerfile
+      dockerfile: ./Dockerfiles/Dockerfile.test
       context: ../
     tty: true
     stdin_open: true

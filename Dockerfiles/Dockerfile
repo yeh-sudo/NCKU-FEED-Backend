@@ -1,4 +1,3 @@
-# docker file for development
 FROM python:3.9-slim-bullseye
 
 RUN mkdir /fast-app

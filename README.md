@@ -62,3 +62,8 @@ docker-compose -f ./Dockerfiles/Docker-compose.dev.yaml up --build
      ```
      flask --debug run --host 0.0.0.0
      ```
+
+## Test
+  ```
+  docker-compose -f ./Dockerfiles/Docker-compose-test.yaml up --build --exit-code-from server-test
+  ```

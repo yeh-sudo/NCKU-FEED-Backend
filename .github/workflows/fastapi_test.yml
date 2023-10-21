@@ -1,4 +1,4 @@
-name: Flask App Tests
+name: Fastapi App Tests
 
 on:
   pull_request:
