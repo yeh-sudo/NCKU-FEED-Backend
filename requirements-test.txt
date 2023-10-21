@@ -6,3 +6,5 @@ redis==4.6.0
 fastapi[all]
 uvicorn[standard]
 python-jose[cryptography]
+pytest==7.4.2
+httpx==0.25.0

@@ -1,0 +1,12 @@
+# docker file for test
+FROM python:3.9-slim-bullseye
+
+RUN mkdir /fast-app
+WORKDIR /fast-app
+COPY requirements-test.txt /fast-app
+RUN pip install -r requirements-test.txt
+COPY . /fast-app
+
+EXPOSE 5000
+
+CMD ["pytest"]

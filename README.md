@@ -17,7 +17,7 @@ Install docker. More information [here](https://docs.docker.com/get-docker/).
 ##### Using docker compose to build image and run
 
 ```
-docker compose -f Docker-compose.dev.yaml up --build
+docker-compose -f ./Dockerfiles/Docker-compose.dev.yaml up --build
 ```
 
 #### 2. Using venv
@@ -25,7 +25,6 @@ docker compose -f Docker-compose.dev.yaml up --build
 ##### Prerequisites
 
 1. Install python 3.8. More information [here](https://www.python.org/downloads/).
-
 2. Install Redis and run locally. More information [here](https://redis.io/docs/getting-started/installation/).
 
 ##### Installation and Run
@@ -63,3 +62,8 @@ docker compose -f Docker-compose.dev.yaml up --build
      ```
      flask --debug run --host 0.0.0.0
      ```
+
+## Test
+  ```
+  docker-compose -f ./Dockerfiles/Docker-compose-test.yaml up --build --exit-code-from server-test
+  ```

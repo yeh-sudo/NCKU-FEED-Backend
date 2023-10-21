@@ -4,17 +4,15 @@ services:
     image: "redis:latest"
     tty: true
     stdin_open: true
-  server:
+  server-test:
     build:
-      dockerfile: Dockerfile.dev
-      context: .
+      dockerfile: ./Dockerfiles/Dockerfile.test
+      context: ../
     tty: true
     stdin_open: true
     volumes:
-      - ./:/flask-app
+      - ../:/fast-app
     environment:
-      - FLASK_APP=run.py
-      - FLASK_ENV=development
       - REDIS_HOST=redis
       - REDIS_PORT=6379
     ports:

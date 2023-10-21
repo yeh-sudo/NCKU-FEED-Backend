@@ -1,0 +1,19 @@
+version: "3"
+services:
+  redis:
+    image: "redis:latest"
+    tty: true
+    stdin_open: true
+  server:
+    build:
+      dockerfile: ./Dockerfiles/Dockerfile
+      context: ../
+    tty: true
+    stdin_open: true
+    volumes:
+      - ../:/fast-app
+    environment:
+      - REDIS_HOST=redis
+      - REDIS_PORT=6379
+    ports:
+      - "5000:5000"
