@@ -6,6 +6,7 @@ from pymongo import MongoClient
 from pymongo.errors import ConnectionFailure, OperationFailure
 import redis
 from ..models.user import User
+from ..models.recommend_list import RecommendList
 from .recommend_task import RecommendComputeTask
 
 class RedisDB(object):
@@ -247,3 +248,62 @@ class NckufeedDB(object):
                                 detail="Can't delete restaurant id.") from error
         user_info = self.find_user(uid)
         return user_info
+
+    def get_recommendation_list(self, uid: str, page: int):
+        """
+        Get user's recommendation list.
+
+        Args:
+            page (int): Recommend page.
+            uid (str): The user's uid from Firebase.
+
+        Returns:
+            dict: User's recommendation list.
+        """
+
+        recommend_list_collection = NckufeedDB.client.nckufeed["recommend_list"]
+        try:
+            user_recommendation = list(
+                recommend_list_collection.find(
+                    {
+                        "uid": uid,
+                        "page": page
+                    },
+                    { "_id": 0 }
+                )
+            )
+        except OperationFailure as error:
+            print(f"Error: Couldn't get recommendation list {error}")
+            raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST,
+                                detail="Can't get recommendation list.") from error
+        recommend_list = RecommendList(
+            uid=uid,
+            page=page,
+            recommendation=user_recommendation[0]["recommendation"]
+        )
+        return recommend_list.model_dump()
+
+    def get_random_recommendation(self):
+        """
+        Get user's recommendation list.
+
+        Returns:
+            dict: Random recommendation list.
+        """
+
+        restaurants_collection = NckufeedDB.client.nckufeed["restaurants"]
+        try:
+            random_recommendation = list(
+                restaurants_collection.aggregate(
+                    [
+                        { "$sample": { "size": 100 } }
+                    ]
+                )
+            )
+        except OperationFailure as error:
+            print(f"Error: Couldn't get random recommendation {error}")
+            raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST,
+                                detail="Can't get random recommendation list.") from error
+        for recommendation in random_recommendation:
+            recommendation["_id"] = str(recommendation["_id"])
+        return { "random_recommendation": random_recommendation }

@@ -3,7 +3,7 @@
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 from dotenv import load_dotenv
-from .routers import auth
+from .routers import auth, recommender
 
 load_dotenv()
 
@@ -16,3 +16,4 @@ app.add_middleware(
     allow_headers=["*"]
 )
 app.include_router(auth.router)
+app.include_router(recommender.router)

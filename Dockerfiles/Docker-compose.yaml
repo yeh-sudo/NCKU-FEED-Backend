@@ -6,7 +6,7 @@ services:
     stdin_open: true
   server:
     build:
-      dockerfile: ./Dockerfiles/Dockerfile.dev
+      dockerfile: ./Dockerfiles/Dockerfile
       context: ../
     tty: true
     stdin_open: true
