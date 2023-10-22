@@ -1,7 +1,7 @@
 """Provide restaurant model for database."""
 
-from typing import List, Optional
-from pydantic import BaseModel, Field, validator
+from typing import List, Optional, Any
+from pydantic import BaseModel, Field, model_validator
 
 class Restaurant(BaseModel):
     """Restaurant model.
@@ -20,12 +20,19 @@ class Restaurant(BaseModel):
     website: Optional[str] = None
     gmap_url: Optional[str] = None
 
+    @model_validator(mode="before")
     @classmethod
-    @validator("tags", "open_hour", "service", "photos", always=True, pre=True)
-    def if_field_is_none(cls, value):
+    def if_field_is_none(cls, data: Any):
         """Restaurant model validator.
         """
 
-        if value is None:
-            return []
-        return value
+        if isinstance(data, dict):
+            if data["tags"] is None:
+                data["tags"] = []
+            if data["open_hour"] is None:
+                data["open_hour"] = []
+            if data["service"] is None:
+                data["service"] = []
+            if data["photos"] is None:
+                data["photos"] = []
+        return data
