@@ -4,6 +4,14 @@ services:
     image: "redis:latest"
     tty: true
     stdin_open: true
+  mongodb:
+    image: mongo:7.0.2
+    environment:
+      - MONGO_INITDB_ROOT_USERNAME=user
+      - MONGO_INITDB_ROOT_PASSWORD=pass
+      - MONGO_INITDB_DATABASE=nckufeed
+    ports:
+      - "27017:27017"
   server-test:
     build:
       dockerfile: ./Dockerfiles/Dockerfile.test
@@ -15,5 +23,8 @@ services:
     environment:
       - REDIS_HOST=redis
       - REDIS_PORT=6379
+      - MONGO_URI=mongodb://user:pass@mongodb:27017
+    depends_on:
+      - mongodb
     ports:
       - "5000:5000"
