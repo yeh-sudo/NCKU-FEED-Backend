@@ -8,62 +8,22 @@ Project description.
 
 ## Getting Start
 
-#### 1. Using docker
+* Prerequisites
 
-##### Prerequisites
+  Install docker. More information [here](https://docs.docker.com/get-docker/).
 
-Install docker. More information [here](https://docs.docker.com/get-docker/).
+* Using docker compose to build image and run
 
-##### Using docker compose to build image and run
-
-```
-docker-compose -f ./Dockerfiles/Docker-compose.dev.yaml up --build
-```
-
-#### 2. Using venv
-
-##### Prerequisites
-
-1. Install python 3.8. More information [here](https://www.python.org/downloads/).
-2. Install Redis and run locally. More information [here](https://redis.io/docs/getting-started/installation/).
-
-##### Installation and Run
-
-* Step 1: Install virtualenv
   ```
-  pip install virtualenv
+  docker-compose -f ./Dockerfiles/Docker-compose.yaml up --build
   ```
-* Step 2: Create a virtual environment
-  ```
-  python -m venv env
-  ```
-* Step 3: Activate virtual environment
-  1. Windows Powershell
-     ```
-     ./env/Scripts/Activate.ps1
-     ```
-  2. Windows cmd
-     ```
-     .\env\Scripts\activate.bat
-     ```
-  3. Linux and MacOS
-     ```
-     source env/bin/activate
-     ```
-* Step 4: Install packages
-  ```
-  pip install -r requirements.txt
-  ```
-* Step 5: Run the program
-  1. Set the environment variables
-     * FLASK_APP=run.py
-     * FLASK_ENV=development
-  2. Run flask
-     ```
-     flask --debug run --host 0.0.0.0
-     ```
 
 ## Test
-  ```
-  docker-compose -f ./Dockerfiles/Docker-compose-test.yaml up --build --exit-code-from server-test
-  ```
+  1. Check with Pylint
+      ```
+      pip install pylint && pylint ./app
+      ```
+  2. Unit tests and integration tests
+      ```
+      docker-compose -f ./Dockerfiles/Docker-compose-test.yaml up --build --exit-code-from server-test
+      ```
