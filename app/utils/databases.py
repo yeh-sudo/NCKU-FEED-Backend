@@ -9,7 +9,7 @@ from ..models.user import User
 from ..models.recommend_list import RecommendList
 from .recommend_task import RecommendComputeTask
 
-class RedisDB(object):
+class RedisDB():
     """
     Redis client class and probive some operations.
     """
@@ -89,7 +89,7 @@ class RedisDB(object):
 
 
 
-class NckufeedDB(object):
+class NckufeedDB():
     """
     MongoDB client class and probive some operations.
     """

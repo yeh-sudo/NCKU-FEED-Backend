@@ -1,0 +1,28 @@
+name: Linting tests
+
+on:
+  push
+
+jobs:
+  Lintint-tests:
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: ./
+    
+    steps:
+      - uses: actions/checkout@v3
+
+      - name: Setup Python
+        uses: actions/setup-python@v4
+        with:
+          python-version: "3.9"
+          architecture: "x64"
+      - name: Display Python version
+        run: python -c "import sys; print(sys.version)"
+      - name: Install project dependencies
+        run: pip install -r requirements.txt
+      - name: Install Pylint
+        run: pip install pylint
+      - name: Analysing code with Pylint
+        run: pylint ./app

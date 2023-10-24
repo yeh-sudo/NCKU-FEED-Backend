@@ -7,7 +7,20 @@ on:
       - dev
 
 jobs:
-  test:
+  Unit-tests:
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: ./
+
+    steps:
+      - uses: actions/checkout@v3
+
+      - name: Build the stack and run tests with Docker # setup and run unit tests
+        run: docker-compose -f ./Dockerfiles/Docker-compose-test.yaml up --build --exit-code-from server-test
+
+
+  Integration-tests:
     runs-on: ubuntu-latest
     defaults:
       run:
