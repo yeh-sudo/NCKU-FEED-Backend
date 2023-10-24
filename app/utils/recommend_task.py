@@ -5,11 +5,11 @@ import random
 import pandas as pd
 import numpy as np
 from sklearn.preprocessing import MultiLabelBinarizer
-from pymongo.errors import OperationFailure
 from fastapi import HTTPException, status
-from . import databases
+from pymongo.errors import OperationFailure
 from ..models.recommend_list import RecommendList
 from ..models.restaurant import Restaurant
+from .connection import connect_to_redis, connect_to_database
 
 
 class RecommendComputeTask(Thread):
@@ -25,8 +25,24 @@ class RecommendComputeTask(Thread):
             uid (str): user's uid
         """
 
-        super(RecommendComputeTask, self).__init__()
+        super().__init__()
         self.__uid = uid
+        self.__redis_client = connect_to_redis()
+        self.__mongo_client = connect_to_database()
+
+    def calculate_similarity(self, restaurants_df, new_preferences):
+        """Calculate similarity and return it.
+        """
+
+        new_preferences_matrix = np.array(new_preferences, dtype=np.float32)
+        tags = restaurants_df.loc[:, "tags"]
+
+        # One hot encoding tags and compute similarity
+        mlb = MultiLabelBinarizer()
+        tags_matrix = pd.DataFrame(mlb.fit_transform(tags),
+                                   columns=mlb.classes_,
+                                   index=tags.index).to_numpy(dtype=np.float32)
+        return np.dot(tags_matrix, np.transpose(new_preferences_matrix)).tolist()
 
     def run(self):
         """
@@ -35,10 +51,10 @@ class RecommendComputeTask(Thread):
         """
 
         # Get's user's new preference from redis
-        new_preferences = databases.RedisDB().get_preference(self.__uid)
+        new_preferences = [float(x) for x in self.__redis_client.hvals(self.__uid)]
 
         # Update user's new preference in database.
-        user_collection = databases.NckufeedDB.client.nckufeed["users"]
+        user_collection = self.__mongo_client.nckufeed["users"]
         try:
             user_collection.update_one(
                 { "uid": self.__uid },
@@ -52,20 +68,14 @@ class RecommendComputeTask(Thread):
             print(f"Error: Couldn't update new preference {error}")
             raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST,
                                 detail="Can't update preference.") from error
-        databases.RedisDB.client.delete(self.__uid)
-        new_preferences_matrix = np.array(new_preferences, dtype=np.float32)
+        self.__redis_client.delete(self.__uid)
 
         # Get all restaurants' info from database
-        restaurants = databases.NckufeedDB.client.nckufeed["restaurants"]
+        restaurants = self.__mongo_client.nckufeed["restaurants"]
         restaurants_df = pd.DataFrame(list(restaurants.find({})))
-        tags = restaurants_df.loc[:, "tags"]
 
-        # One hot encoding tags and compute similarity
-        mlb = MultiLabelBinarizer()
-        tags_matrix = pd.DataFrame(mlb.fit_transform(tags),
-                                   columns=mlb.classes_,
-                                   index=tags.index).to_numpy(dtype=np.float32)
-        similarity = np.dot(tags_matrix, np.transpose(new_preferences_matrix)).tolist()
+        # Get similarity
+        similarity = self.calculate_similarity(restaurants_df, new_preferences)
 
         # Insert similarity to dataframe and generate new recommend list
         restaurants_df.insert(0, "similarity", similarity)
@@ -74,7 +84,7 @@ class RecommendComputeTask(Thread):
         recommendation = []
         count = 0
         page = 1
-        recommend_list_collection = databases.NckufeedDB.client.nckufeed["recommend_list"]
+        recommend_list_collection = self.__mongo_client.nckufeed["recommend_list"]
         for _, row in restaurants_df.iterrows():
             if count == 100:
                 count = 0
