@@ -4,7 +4,7 @@ on:
   push
 
 jobs:
-  Lintint-tests:
+  Linting-tests:
     runs-on: ubuntu-latest
     defaults:
       run:
